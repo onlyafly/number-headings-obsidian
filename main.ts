@@ -1,4 +1,5 @@
-import { App, CachedMetadata, Editor, EditorPosition, MarkdownView, Modal, Plugin } from 'obsidian';
+import { replaceHeaderNumbering } from 'numbering';
+import { App, MarkdownView, Modal, Plugin } from 'obsidian';
 
 /* Unused feature: settings
 interface MyPluginSettings {
@@ -16,7 +17,7 @@ export default class MyPlugin extends Plugin {
 	*/
 
 	async onload() {
-		console.log('loading plugin');
+		console.log('loading HN plugin, v0.0.1.4');
 
 		/* Unused feature: settings
 		await this.loadSettings();
@@ -67,14 +68,14 @@ export default class MyPlugin extends Plugin {
 		});
 
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click (from header numbering plugin)', evt);
+			//DELETE console.log('click (from header numbering plugin)', evt);
 		});
 
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
-		console.log('unloading plugin');
+		// DELETE console.log('unloading plugin');
 	}
 
 	/* Unused feature: settings
@@ -86,14 +87,6 @@ export default class MyPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 	*/
-}
-
-function replaceHeaderNumbering(data: CachedMetadata, cursor: EditorPosition, editor: Editor) {
-	console.log("start replaceHeaderNumbering")
-	const x = "dude"
-	editor.replaceRange(x, cursor);
-
-	console.log("finished replaceHeaderNumbering")
 }
 
 function showMessage(app: App) {

@@ -1,4 +1,8 @@
-# Readme
+# Header Numbering Plugin for Obsidian
+
+## Credits
+
+I was inspired partially by the Obsidian plugin <https://github.com/hipstersmoothie/obsidian-plugin-toc> and some of the code logic is descended from that plugin. Thanks!
 
 ## Obsidian Sample Plugin
 
