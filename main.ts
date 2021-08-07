@@ -39,7 +39,7 @@ function showJobDoneMessage (app: App, message: string) {
   }
 }
 
-export default class MyPlugin extends Plugin {
+export default class HeaderNumberingPlugin extends Plugin {
   /* Unused feature: settings
   settings: MyPluginSettings;
   */

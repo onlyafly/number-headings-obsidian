@@ -1,9 +1,0 @@
-{
-  "eslint.workingDirectories": [
-    "."
-  ],
-  "files.exclude": {
-    "**/node_modules/": true,
-    "**/package-lock.json": true
-  }
-}

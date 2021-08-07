@@ -2,6 +2,10 @@
   "name": "header-numbering-obsidian",
   "version": "0.0.1",
   "description": "This is a header numbering plugin for Obsidian (https://obsidian.md)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onlyafly/header-numbering-obsidian.git"
+  },
   "main": "main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.js -w",
