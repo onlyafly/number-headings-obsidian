@@ -1,5 +1,6 @@
+import { showJobDoneMessage } from 'messages'
 import { replaceHeaderNumbering } from 'numbering'
-import { App, MarkdownView, Modal, Plugin } from 'obsidian'
+import { MarkdownView, Plugin } from 'obsidian'
 
 /* Unused feature: settings
 interface MyPluginSettings {
@@ -10,34 +11,6 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
   mySetting: 'default'
 }
 */
-
-class JobDoneModal extends Modal {
-  message: string
-
-  constructor (app: App, message: string) {
-    super(app)
-    this.message = message
-  }
-
-  onOpen () {
-    const { contentEl, titleEl } = this
-    contentEl.setText(this.message)
-    titleEl.setText('Header Numbering Plugin')
-  }
-
-  onClose () {
-    const { contentEl, titleEl } = this
-    contentEl.empty()
-    titleEl.empty()
-  }
-}
-
-function showJobDoneMessage (app: App, message: string) {
-  const leaf = app.workspace.activeLeaf
-  if (leaf) {
-    new JobDoneModal(app, message).open()
-  }
-}
 
 export default class HeaderNumberingPlugin extends Plugin {
   /* Unused feature: settings
