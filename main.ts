@@ -1,39 +1,52 @@
 import { showJobDoneMessage } from 'messages'
 import { replaceHeaderNumbering } from 'numbering'
-import { MarkdownView, Plugin } from 'obsidian'
+import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian'
 
-/* Unused feature: settings
 interface MyPluginSettings {
-  mySetting: string;
+  mySetting: string
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
   mySetting: 'default'
 }
-*/
+
+class SampleSettingTab extends PluginSettingTab {
+  plugin: HeaderNumberingPlugin
+
+  constructor (app: App, plugin: HeaderNumberingPlugin) {
+    super(app, plugin)
+    this.plugin = plugin
+  }
+
+  display (): void {
+    const { containerEl } = this
+
+    containerEl.empty()
+
+    containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' })
+
+    new Setting(containerEl)
+      .setName('Setting #1')
+      .setDesc('It\'s a secret')
+      .addText(text => text
+        .setPlaceholder('Enter your secret')
+        .setValue('')
+        .onChange(async (value) => {
+          // DELETE console.log('Secret: ' + value)
+          this.plugin.settings.mySetting = value
+          await this.plugin.saveSettings()
+        }))
+  }
+}
 
 export default class HeaderNumberingPlugin extends Plugin {
-  /* Unused feature: settings
-  settings: MyPluginSettings;
-  */
+  settings: MyPluginSettings
 
   async onload () {
     // eslint-disable-next-line no-console
     console.log('loading HN plugin, v0.0.1.11')
 
-    /* Unused feature: settings
-    await this.loadSettings();
-    */
-
-    /* Unused feature: ribbon icon
-    this.addRibbonIcon('dice', 'Sample Plugin', () => {
-      new Notice('This is a notice!');
-    });
-    */
-
-    /* Unused feature: status text
-    this.addStatusBarItem().setText('Status Bar Text');
-    */
+    await this.loadSettings()
 
     this.addCommand({
       id: 'number-headings',
@@ -59,53 +72,14 @@ export default class HeaderNumberingPlugin extends Plugin {
       }
     })
 
-    /* Unused feature: settings
-    this.addSettingTab(new SampleSettingTab(this.app, this));
-    */
+    this.addSettingTab(new SampleSettingTab(this.app, this))
   }
 
-  onunload () {
-    // DELETE console.log('unloading plugin');
+  async loadSettings () {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
   }
 
-  /* Unused feature: settings
-  async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-  }
-
-  async saveSettings() {
-    await this.saveData(this.settings);
-  }
-  */
-}
-
-/* Unused feature: settings
-class SampleSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
-
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    let { containerEl } = this;
-
-    containerEl.empty();
-
-    containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
-
-    new Setting(containerEl)
-      .setName('Setting #1')
-      .setDesc('It\'s a secret')
-      .addText(text => text
-        .setPlaceholder('Enter your secret')
-        .setValue('')
-        .onChange(async (value) => {
-          console.log('Secret: ' + value);
-          this.plugin.settings.mySetting = value;
-          await this.plugin.saveSettings();
-        }));
+  async saveSettings () {
+    await this.saveData(this.settings)
   }
 }
-*/
