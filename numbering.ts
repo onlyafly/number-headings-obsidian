@@ -1,4 +1,5 @@
-import { CachedMetadata, Editor, EditorRange, HeadingCache } from 'obsidian'
+import { CachedMetadata, Editor, EditorRange, HeadingCache, parseFrontMatterEntry } from 'obsidian'
+import { HeaderNumberingPluginSettings } from 'settingsTypes'
 
 function makeHeaderHashString (editor: Editor, heading: HeadingCache): string {
   const regex = /^#+/g
@@ -58,13 +59,12 @@ function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRan
 export const replaceHeaderNumbering = (
   { headings = [] }: CachedMetadata,
   editor: Editor,
-  skipTopLevel: boolean,
-  maxLevel: number
+  settings: HeaderNumberingPluginSettings
 ) => {
   let previousLevel = 1
   const numberingStack: number[] = [0]
 
-  if (skipTopLevel) {
+  if (settings.skipTopLevel) {
     previousLevel = 2
   }
 
@@ -76,7 +76,7 @@ export const replaceHeaderNumbering = (
     // Remove any header numbering in these two cases:
     // 1. this is a top level and we are skipping top level headings
     // 2. this level is higher than the max level setting
-    if ((skipTopLevel && level === 1) || (level > maxLevel)) {
+    if ((settings.skipTopLevel && level === 1) || (level > settings.maxLevel)) {
       const prefixRange = getHeaderPrefixRange(editor, heading)
       const headerHashString = makeHeaderHashString(editor, heading)
       const prefixString = makeNumberingString([])
@@ -102,7 +102,7 @@ export const replaceHeaderNumbering = (
     // Set the previous level to this level for the next iteration
     previousLevel = level
 
-    if (level > maxLevel) {
+    if (level > settings.maxLevel) {
       // If we are above the max level, just don't number it
       continue
     }
@@ -123,5 +123,20 @@ export const removeHeaderNumbering = (
     const headerHashString = makeHeaderHashString(editor, heading)
     const prefixString = makeNumberingString([])
     editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+  }
+}
+
+export const getFrontMatterSettingsOrProvided = (
+  { frontmatter }: CachedMetadata,
+  alternativeSettings: HeaderNumberingPluginSettings
+): HeaderNumberingPluginSettings => {
+  if (frontmatter !== undefined) {
+    const skipTopLevelEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-skip-top-level')
+    const skipTopLevel = (skipTopLevelEntry !== true && skipTopLevelEntry !== false) ? alternativeSettings.skipTopLevel : skipTopLevelEntry
+
+    const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-max-level')
+    const maxLevel = (typeof maxLevelEntry !== 'number' || maxLevelEntry < 1 || maxLevelEntry > 10) ? alternativeSettings.maxLevel : maxLevelEntry
+
+    return { skipTopLevel, maxLevel }
   }
 }

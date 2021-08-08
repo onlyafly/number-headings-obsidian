@@ -1,16 +1,7 @@
 import { showJobDoneMessage } from 'messages'
-import { removeHeaderNumbering, replaceHeaderNumbering } from 'numbering'
+import { getFrontMatterSettingsOrProvided as getFrontMatterSettingsOrAlternative, removeHeaderNumbering, replaceHeaderNumbering } from 'numbering'
 import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian'
-
-interface HeaderNumberingPluginSettings {
-  skipTopLevel: boolean,
-  maxLevel: number,
-}
-
-const DEFAULT_SETTINGS: HeaderNumberingPluginSettings = {
-  skipTopLevel: false,
-  maxLevel: 10
-}
+import { DEFAULT_SETTINGS, HeaderNumberingPluginSettings } from 'settingsTypes'
 
 class HeaderNumberingPluginSettingTab extends PluginSettingTab {
   plugin: HeaderNumberingPlugin
@@ -26,6 +17,20 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
     containerEl.empty()
 
     containerEl.createEl('h2', { text: 'Header Numbering - Settings' })
+
+    containerEl.createEl('div', { text: 'If the document has front matter defined for the below settings, the setting will be ignored. You can define front matter like this:' })
+
+    containerEl.createEl('pre', {
+      text: `    ---
+    alias:
+    - Example Alias
+    tags:
+    - space
+    - science-fiction
+    header-numbering-skip-top-level: true
+    header-numbering-max-level: 3
+    ---`
+    })
 
     new Setting(containerEl)
       .setName('Skip top heading level')
@@ -68,11 +73,22 @@ export default class HeaderNumberingPlugin extends Plugin {
         const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
         if (activeView && activeView.file) {
           if (!checking) {
-            const editor = activeView.editor
             const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-            replaceHeaderNumbering(data, editor, this.settings.skipTopLevel, this.settings.maxLevel)
+            const editor = activeView.editor
+            const settings = getFrontMatterSettingsOrAlternative(data, this.settings)
 
-            showJobDoneMessage(this.app, 'Successfully updated all header numbering in the document. See settings panel to change how headings are numbered.')
+            replaceHeaderNumbering(data, editor, settings)
+
+            showJobDoneMessage(
+              this.app,
+              `Successfully updated all header numbering in the document, using the settings below. 
+              See settings panel to change how headings are numbered, or use front matter
+              (see settings panel).`,
+              `
+header-numbering-skip-top-level: ${settings.skipTopLevel}
+header-numbering-max-level: ${settings.maxLevel}
+`
+            )
           }
 
           return true
@@ -93,7 +109,7 @@ export default class HeaderNumberingPlugin extends Plugin {
             const data = this.app.metadataCache.getFileCache(activeView.file) || {}
             removeHeaderNumbering(data, editor)
 
-            showJobDoneMessage(this.app, 'Successfully removed all header numbering in the document.')
+            showJobDoneMessage(this.app, 'Successfully removed all header numbering in the document.', '')
           }
 
           return true
