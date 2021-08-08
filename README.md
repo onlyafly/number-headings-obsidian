@@ -17,7 +17,10 @@ You can also assign the commands to hotkeys for easy usage.
 
 ## How to use the plugin
 
-| Action                                          | Hotkey           | ----------------------------------------------- | ---------------- | Number all headings in document                 | None by default | Remove numbering from all headings in document  | None by default
+| Action                                          | Hotkey          |
+| ----------------------------------------------- | --------------- |
+| Number all headings in document                 | None by default |
+| Remove numbering from all headings in document  | None by default |
 
 ## Credits
 
