@@ -1,7 +1,7 @@
 {
 	"id": "header-numbering-obsidian",
 	"name": "Header Numbering",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"minAppVersion": "0.9.12",
 	"description": "Automatically number or re-number headings in an Obsidian document",
 	"author": "Kevin Albrecht (onlyafly@gmail.com)",

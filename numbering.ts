@@ -1,31 +1,76 @@
-import { CachedMetadata, Editor } from 'obsidian'
+import { CachedMetadata, Editor, EditorRange, HeadingCache } from 'obsidian'
 
-function makeNumberingString (numberingStack: number[]): string {
-  let builder = ''
+function makePrefixString (numberingStack: number[], skipTopLevel: boolean): string {
+  let numberingString = ''
 
   for (let i = 0; i < numberingStack.length; i++) {
-    if (i !== 0) {
-      builder += '.'
+    if (i === 0) {
+      numberingString += ' '
+    } else {
+      numberingString += '.'
     }
-    builder += numberingStack[i].toString()
+    numberingString += numberingStack[i].toString()
   }
 
-  const headerHashes = '#'.repeat(numberingStack.length)
+  const effectiveLevel = skipTopLevel ? numberingStack.length + 1 : numberingStack.length
+  const headerHashes = '#'.repeat(effectiveLevel)
 
-  return headerHashes + ' ' + builder
+  return headerHashes + numberingString
+}
+
+function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRange {
+  const regex = /^#+ ([0-9.]+)?( )*/g
+  const headerLineString = editor.getLine(heading.position.start.line)
+  const matches = headerLineString.match(regex)
+
+  if (matches.length !== 1) {
+    // eslint-disable-next-line no-console
+    console.log("Unexpected header format: '" + headerLineString + "'")
+    return undefined
+  }
+
+  const match = matches[0]
+
+  const from = {
+    line: heading.position.start.line,
+    ch: 0
+  }
+  const to = {
+    line: heading.position.start.line,
+    ch: match.length
+  }
+
+  return { from, to }
 }
 
 export const replaceHeaderNumbering = (
   { headings = [] }: CachedMetadata,
-  editor: Editor
+  editor: Editor,
+  skipTopLevel: boolean,
+  maxLevel: number
 ) => {
   let previousLevel = 1
   const numberingStack: number[] = [0]
+
+  if (skipTopLevel) {
+    previousLevel = 2
+  }
 
   for (const heading of headings) {
     // Update the numbering stack based on the level and previous level
 
     const level = heading.level
+
+    // Remove any header numbering in these two cases:
+    // 1. this is a top level and we are skipping top level headings
+    // 2. this level is higher than the max level setting
+    if ((skipTopLevel && level === 1) || (level > maxLevel)) {
+      const prefixRange = getHeaderPrefixRange(editor, heading)
+      if (prefixRange === undefined) { continue }
+      const prefixString = makePrefixString([], skipTopLevel)
+      editor.replaceRange(prefixString + ' ', prefixRange.from, prefixRange.to)
+      continue
+    }
 
     if (level === previousLevel) {
       const x = numberingStack.pop()
@@ -45,28 +90,15 @@ export const replaceHeaderNumbering = (
     // Set the previous level to this level for the next iteration
     previousLevel = level
 
-    const regex = /^#+ ([0-9.]+)?( )*/g
-    const headerLineString = editor.getLine(heading.position.start.line)
-    const matches = headerLineString.match(regex)
-
-    if (matches.length !== 1) {
-      // eslint-disable-next-line no-console
-      console.log("Unexpected header format: '" + headerLineString + "'")
+    if (level > maxLevel) {
+      // If we are above the max level, just don't number it
       continue
     }
 
-    const match = matches[0]
+    const prefixRange = getHeaderPrefixRange(editor, heading)
+    if (prefixRange === undefined) { continue }
 
-    const from = {
-      line: heading.position.start.line,
-      ch: 0
-    }
-    const to = {
-      line: heading.position.start.line,
-      ch: match.length
-    }
-
-    const numberingString = makeNumberingString(numberingStack)
-    editor.replaceRange(numberingString + ' ', from, to)
+    const prefixString = makePrefixString(numberingStack, skipTopLevel)
+    editor.replaceRange(prefixString + ' ', prefixRange.from, prefixRange.to)
   }
 }

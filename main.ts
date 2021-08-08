@@ -2,15 +2,17 @@ import { showJobDoneMessage } from 'messages'
 import { replaceHeaderNumbering } from 'numbering'
 import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian'
 
-interface MyPluginSettings {
-  mySetting: string
+interface HeaderNumberingPluginSettings {
+  skipTopLevel: boolean,
+  maxLevel: number,
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-  mySetting: 'default'
+const DEFAULT_SETTINGS: HeaderNumberingPluginSettings = {
+  skipTopLevel: false,
+  maxLevel: 10
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class HeaderNumberingPluginSettingTab extends PluginSettingTab {
   plugin: HeaderNumberingPlugin
 
   constructor (app: App, plugin: HeaderNumberingPlugin) {
@@ -23,44 +25,52 @@ class SampleSettingTab extends PluginSettingTab {
 
     containerEl.empty()
 
-    containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' })
+    containerEl.createEl('h2', { text: 'Header Numbering - Settings' })
 
     new Setting(containerEl)
-      .setName('Setting #1')
-      .setDesc('It\'s a secret')
-      .addText(text => text
-        .setPlaceholder('Enter your secret')
-        .setValue('')
+      .setName('Skip top heading level')
+      .setDesc('If selected, numbering will not be applied to the top heading level. Defaults to false.')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.skipTopLevel)
+        .setTooltip('Skip top heading level')
         .onChange(async (value) => {
-          // DELETE console.log('Secret: ' + value)
-          this.plugin.settings.mySetting = value
+          this.plugin.settings.skipTopLevel = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('Maximum heading level')
+      .setDesc('Maximum heading level to number. Defaults to 10.')
+      .addSlider(slider => slider
+        .setLimits(1, 10, 1)
+        .setValue(this.plugin.settings.maxLevel)
+        .setDynamicTooltip()
+        .onChange(async (value) => {
+          this.plugin.settings.maxLevel = value
           await this.plugin.saveSettings()
         }))
   }
 }
 
 export default class HeaderNumberingPlugin extends Plugin {
-  settings: MyPluginSettings
+  settings: HeaderNumberingPluginSettings
 
   async onload () {
     // eslint-disable-next-line no-console
-    console.log('loading HN plugin, v0.0.1.11')
+    console.info('Loading Header Numbering Plugin, version ' + this.manifest.version)
 
     await this.loadSettings()
 
     this.addCommand({
       id: 'number-headings',
-      name: 'Number Headings',
-      // callback: () => {
-      //   console.log('Simple Callback');
-      // },
+      name: 'Number all headings in document',
       checkCallback: (checking: boolean) => {
         const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
         if (activeView && activeView.file) {
           if (!checking) {
             const editor = activeView.editor
             const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-            replaceHeaderNumbering(data, editor)
+            replaceHeaderNumbering(data, editor, this.settings.skipTopLevel, this.settings.maxLevel)
 
             showJobDoneMessage(this.app, 'Successfully updated all header numbering in the document.')
           }
@@ -72,7 +82,7 @@ export default class HeaderNumberingPlugin extends Plugin {
       }
     })
 
-    this.addSettingTab(new SampleSettingTab(this.app, this))
+    this.addSettingTab(new HeaderNumberingPluginSettingTab(this.app, this))
   }
 
   async loadSettings () {
