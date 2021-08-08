@@ -32,7 +32,7 @@ function makeNumberingString (numberingStack: NumberingToken[]): string {
 }
 
 function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRange {
-  const regex = /^#+( )?([0-9]\.|[A-Z]\.)*([0-9]|[A-Z])?( )+/g
+  const regex = /^#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )+/g
   const headerLineString = editor.getLine(heading.position.start.line)
   const matches = headerLineString.match(regex)
 
