@@ -1,5 +1,24 @@
 # Header Numbering Plugin for Obsidian
 
+Numbers headings in a doc with outline style numbering. For example, "1.1.2".
+
+## How to install
+
+There are two ways to get the plugin:
+
+1. Install the latest release from Obsidian directly.
+2. Unzip the most recent release into your `<vault>/.obsidian/plugins/` folder. You can find the latest release at <https://github.com/onlyafly/header-numbering-obsidian/releases/latest>.
+
+After you have installed the plugin, make sure that the switch for "Header Numbering" is turned on.
+
+You will see this plugin's commands in the command palette, by typing `CMD + P`.
+
+You can also assign the commands to hotkeys for easy usage.
+
+## How to use the plugin
+
+| Action                                          | Hotkey           | ----------------------------------------------- | ---------------- | Number all headings in document                 | None by default | Remove numbering from all headings in document  | None by default
+
 ## Credits
 
 I was inspired partially by the Obsidian plugin <https://github.com/hipstersmoothie/obsidian-plugin-toc> and some of the code logic is descended from that plugin. Thanks!
