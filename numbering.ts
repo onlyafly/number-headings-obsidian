@@ -1,6 +1,21 @@
 import { CachedMetadata, Editor, EditorRange, HeadingCache } from 'obsidian'
 
-function makePrefixString (numberingStack: number[], skipTopLevel: boolean): string {
+function makeHeaderHashString (editor: Editor, heading: HeadingCache): string {
+  const regex = /^#+/g
+  const headerLineString = editor.getLine(heading.position.start.line)
+  const matches = headerLineString.match(regex)
+
+  if (matches.length !== 1) {
+    // eslint-disable-next-line no-console
+    console.log("Unexpected header format: '" + headerLineString + "'")
+    return undefined
+  }
+
+  const match = matches[0]
+  return match
+}
+
+function makeNumberingString (numberingStack: number[]): string {
   let numberingString = ''
 
   for (let i = 0; i < numberingStack.length; i++) {
@@ -12,10 +27,7 @@ function makePrefixString (numberingStack: number[], skipTopLevel: boolean): str
     numberingString += numberingStack[i].toString()
   }
 
-  const effectiveLevel = skipTopLevel ? numberingStack.length + 1 : numberingStack.length
-  const headerHashes = '#'.repeat(effectiveLevel)
-
-  return headerHashes + numberingString
+  return numberingString
 }
 
 function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRange {
@@ -66,9 +78,9 @@ export const replaceHeaderNumbering = (
     // 2. this level is higher than the max level setting
     if ((skipTopLevel && level === 1) || (level > maxLevel)) {
       const prefixRange = getHeaderPrefixRange(editor, heading)
-      if (prefixRange === undefined) { continue }
-      const prefixString = makePrefixString([], skipTopLevel)
-      editor.replaceRange(prefixString + ' ', prefixRange.from, prefixRange.to)
+      const headerHashString = makeHeaderHashString(editor, heading)
+      const prefixString = makeNumberingString([])
+      editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
       continue
     }
 
@@ -96,9 +108,8 @@ export const replaceHeaderNumbering = (
     }
 
     const prefixRange = getHeaderPrefixRange(editor, heading)
-    if (prefixRange === undefined) { continue }
-
-    const prefixString = makePrefixString(numberingStack, skipTopLevel)
-    editor.replaceRange(prefixString + ' ', prefixRange.from, prefixRange.to)
+    const headerHashString = makeHeaderHashString(editor, heading)
+    const prefixString = makeNumberingString(numberingStack)
+    editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
   }
 }

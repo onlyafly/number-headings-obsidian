@@ -72,7 +72,7 @@ export default class HeaderNumberingPlugin extends Plugin {
             const data = this.app.metadataCache.getFileCache(activeView.file) || {}
             replaceHeaderNumbering(data, editor, this.settings.skipTopLevel, this.settings.maxLevel)
 
-            showJobDoneMessage(this.app, 'Successfully updated all header numbering in the document.')
+            showJobDoneMessage(this.app, 'Successfully updated all header numbering in the document. See settings panel to change how headings are numbered.')
           }
 
           return true
