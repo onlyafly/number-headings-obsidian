@@ -113,3 +113,15 @@ export const replaceHeaderNumbering = (
     editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
   }
 }
+
+export const removeHeaderNumbering = (
+  { headings = [] }: CachedMetadata,
+  editor: Editor
+) => {
+  for (const heading of headings) {
+    const prefixRange = getHeaderPrefixRange(editor, heading)
+    const headerHashString = makeHeaderHashString(editor, heading)
+    const prefixString = makeNumberingString([])
+    editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+  }
+}

@@ -1,5 +1,5 @@
 import { showJobDoneMessage } from 'messages'
-import { replaceHeaderNumbering } from 'numbering'
+import { removeHeaderNumbering, replaceHeaderNumbering } from 'numbering'
 import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian'
 
 interface HeaderNumberingPluginSettings {
@@ -73,6 +73,27 @@ export default class HeaderNumberingPlugin extends Plugin {
             replaceHeaderNumbering(data, editor, this.settings.skipTopLevel, this.settings.maxLevel)
 
             showJobDoneMessage(this.app, 'Successfully updated all header numbering in the document. See settings panel to change how headings are numbered.')
+          }
+
+          return true
+        }
+
+        return false // This command is not available if the view is not selected
+      }
+    })
+
+    this.addCommand({
+      id: 'remove-number-headings',
+      name: 'Remove numbering from all headings in document',
+      checkCallback: (checking: boolean) => {
+        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
+        if (activeView && activeView.file) {
+          if (!checking) {
+            const editor = activeView.editor
+            const data = this.app.metadataCache.getFileCache(activeView.file) || {}
+            removeHeaderNumbering(data, editor)
+
+            showJobDoneMessage(this.app, 'Successfully removed all header numbering in the document.')
           }
 
           return true
