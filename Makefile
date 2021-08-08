@@ -1,4 +1,4 @@
-.PHONY: install
+.PHONY: install build local-deploy
 
 install:
 	npm install
