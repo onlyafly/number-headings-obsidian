@@ -29,12 +29,14 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
     - science-fiction
     header-numbering-skip-top-level: true
     header-numbering-max-level: 3
+    header-numbering-style-level-1: A
+    header-numbering-style-level-other: 1
     ---`
     })
 
     new Setting(containerEl)
       .setName('Skip top heading level')
-      .setDesc('If selected, numbering will not be applied to the top heading level. Defaults to false.')
+      .setDesc('If selected, numbering will not be applied to the top heading level. Defaults to false. To define this in your document front matter, use the header-numbering-skip-top-level key.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.skipTopLevel)
         .setTooltip('Skip top heading level')
@@ -45,13 +47,35 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Maximum heading level')
-      .setDesc('Maximum heading level to number. Defaults to 10.')
+      .setDesc('Maximum heading level to number. Defaults to 10. To define this in your document front matter, use the header-numbering-max-level key.')
       .addSlider(slider => slider
         .setLimits(1, 10, 1)
         .setValue(this.plugin.settings.maxLevel)
         .setDynamicTooltip()
         .onChange(async (value) => {
           this.plugin.settings.maxLevel = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('Style for level 1 headings')
+      .setDesc(`Defines the numbering style for level one headings. Valid values are 1 (for numbers) or A (for capital letters).
+                Defaults to 1. To define this in your document front matter, use the header-numbering-style-level-1 key.`)
+      .addText(text => text
+        .setValue(this.plugin.settings.styleLevel1)
+        .onChange(async (value) => {
+          this.plugin.settings.styleLevel1 = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('Style for lower level headings (below level 1)')
+      .setDesc(`Defines the numbering style for headings below level one. Valid values are 1 (for numbers) or A (for capital letters).
+                Defaults to 1. To define this in your document front matter, use the header-numbering-style-level-other key.`)
+      .addText(text => text
+        .setValue(this.plugin.settings.styleLevelOther)
+        .onChange(async (value) => {
+          this.plugin.settings.styleLevelOther = value
           await this.plugin.saveSettings()
         }))
   }
@@ -87,6 +111,8 @@ export default class HeaderNumberingPlugin extends Plugin {
               `
 header-numbering-skip-top-level: ${settings.skipTopLevel}
 header-numbering-max-level: ${settings.maxLevel}
+header-numbering-style-level-1: ${settings.styleLevel1}
+header-numbering-style-level-other: ${settings.styleLevelOther}
 `
             )
           }

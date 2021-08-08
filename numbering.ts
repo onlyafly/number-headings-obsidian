@@ -16,7 +16,7 @@ function makeHeaderHashString (editor: Editor, heading: HeadingCache): string {
   return match
 }
 
-function makeNumberingString (numberingStack: number[]): string {
+function makeNumberingString (numberingStack: NumberingToken[]): string {
   let numberingString = ''
 
   for (let i = 0; i < numberingStack.length; i++) {
@@ -32,7 +32,7 @@ function makeNumberingString (numberingStack: number[]): string {
 }
 
 function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRange {
-  const regex = /^#+ ([0-9.]+)?( )*/g
+  const regex = /^#+( )?([0-9]\.|[A-Z]\.)*([0-9]|[A-Z])?( )+/g
   const headerLineString = editor.getLine(heading.position.start.line)
   const matches = headerLineString.match(regex)
 
@@ -56,13 +56,49 @@ function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRan
   return { from, to }
 }
 
+type NumberingToken = string | number
+
+function zerothNumberingTokenInStyle (style: string): NumberingToken {
+  if (style === '1') {
+    return 0
+  } else if (style === 'A') {
+    return 'Z'
+  }
+
+  return 0
+}
+
+function firstNumberingTokenInStyle (style: string): NumberingToken {
+  if (style === '1') {
+    return 1
+  } else if (style === 'A') {
+    return 'A'
+  }
+
+  return 1
+}
+
+function nextNumberingToken (t: NumberingToken): NumberingToken {
+  if (typeof t === 'number') {
+    return t + 1
+  }
+
+  if (typeof t === 'string') {
+    if (t === 'Z') return 'A'
+    else return String.fromCharCode(t.charCodeAt(0) + 1)
+  }
+
+  return 1
+}
+
 export const replaceHeaderNumbering = (
   { headings = [] }: CachedMetadata,
   editor: Editor,
   settings: HeaderNumberingPluginSettings
 ) => {
   let previousLevel = 1
-  const numberingStack: number[] = [0]
+
+  const numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
 
   if (settings.skipTopLevel) {
     previousLevel = 2
@@ -86,16 +122,16 @@ export const replaceHeaderNumbering = (
 
     if (level === previousLevel) {
       const x = numberingStack.pop()
-      numberingStack.push(x + 1)
+      numberingStack.push(nextNumberingToken(x))
     } else if (level < previousLevel) {
       for (let i = previousLevel; i > level; i--) {
         numberingStack.pop()
       }
       const x = numberingStack.pop()
-      numberingStack.push(x + 1)
+      numberingStack.push(nextNumberingToken(x))
     } else if (level > previousLevel) {
       for (let i = previousLevel; i < level; i++) {
-        numberingStack.push(1)
+        numberingStack.push(firstNumberingTokenInStyle(settings.styleLevelOther))
       }
     }
 
@@ -137,6 +173,15 @@ export const getFrontMatterSettingsOrProvided = (
     const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-max-level')
     const maxLevel = (typeof maxLevelEntry !== 'number' || maxLevelEntry < 1 || maxLevelEntry > 10) ? alternativeSettings.maxLevel : maxLevelEntry
 
-    return { skipTopLevel, maxLevel }
+    const styleLevel1Entry = parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1').toString()
+    const styleLevel1 = (styleLevel1Entry !== '1' && styleLevel1Entry !== 'A') ? alternativeSettings.styleLevel1 : styleLevel1Entry
+
+    const styleLevelOtherEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other').toString()
+
+    const styleLevelOther = (styleLevelOtherEntry !== '1' && styleLevelOtherEntry !== 'A') ? alternativeSettings.styleLevelOther : styleLevelOtherEntry
+
+    return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther }
+  } else {
+    return alternativeSettings
   }
 }
