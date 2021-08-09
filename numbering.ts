@@ -36,13 +36,13 @@ function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRan
   const headerLineString = editor.getLine(heading.position.start.line)
   const matches = headerLineString.match(regex)
 
-  if (matches.length !== 1) {
+  if (matches && matches.length !== 1) {
     // eslint-disable-next-line no-console
     console.log("Unexpected header format: '" + headerLineString + "'")
     return undefined
   }
 
-  const match = matches[0]
+  const match = matches ? matches[0] : ''
 
   const from = {
     line: heading.position.start.line,
@@ -171,16 +171,18 @@ export const getFrontMatterSettingsOrProvided = (
     const skipTopLevel = (skipTopLevelEntry !== true && skipTopLevelEntry !== false) ? alternativeSettings.skipTopLevel : skipTopLevelEntry
 
     const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-max-level')
-    const maxLevel = (typeof maxLevelEntry !== 'number' || maxLevelEntry < 1 || maxLevelEntry > 10) ? alternativeSettings.maxLevel : maxLevelEntry
+    const maxLevel = (typeof maxLevelEntry !== 'number' || maxLevelEntry < 1 || maxLevelEntry > 6) ? alternativeSettings.maxLevel : maxLevelEntry
 
-    const styleLevel1Entry = parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1').toString()
+    const styleLevel1Entry = String(parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1'))
     const styleLevel1 = (styleLevel1Entry !== '1' && styleLevel1Entry !== 'A') ? alternativeSettings.styleLevel1 : styleLevel1Entry
 
-    const styleLevelOtherEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other').toString()
-
+    const styleLevelOtherEntry = String(parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other'))
     const styleLevelOther = (styleLevelOtherEntry !== '1' && styleLevelOtherEntry !== 'A') ? alternativeSettings.styleLevelOther : styleLevelOtherEntry
 
-    return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther }
+    const autoEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
+    const auto = (autoEntry !== true) ? false : autoEntry
+
+    return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
   } else {
     return alternativeSettings
   }

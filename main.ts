@@ -31,6 +31,7 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
     header-numbering-max-level: 3
     header-numbering-style-level-1: A
     header-numbering-style-level-other: 1
+    header-numbering-auto: true
     ---`
     })
 
@@ -47,9 +48,9 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Maximum heading level')
-      .setDesc('Maximum heading level to number. Defaults to 10. To define this in your document front matter, use the header-numbering-max-level key.')
+      .setDesc('Maximum heading level to number. Defaults to 6. To define this in your document front matter, use the header-numbering-max-level key.')
       .addSlider(slider => slider
-        .setLimits(1, 10, 1)
+        .setLimits(1, 6, 1)
         .setValue(this.plugin.settings.maxLevel)
         .setDynamicTooltip()
         .onChange(async (value) => {
@@ -78,6 +79,11 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
           this.plugin.settings.styleLevelOther = value
           await this.plugin.saveSettings()
         }))
+
+    new Setting(containerEl)
+      .setName('Automatic numbering')
+      .setDesc(`Turns on automatic numbering. You must enable this in front matter (see example above). Valid values are true or false.
+                  Defaults to false. To define this in your document front matter, use the header-numbering-auto key.`)
   }
 }
 
@@ -146,6 +152,20 @@ header-numbering-style-level-other: ${settings.styleLevelOther}
     })
 
     this.addSettingTab(new HeaderNumberingPluginSettingTab(this.app, this))
+
+    this.registerInterval(window.setInterval(() => {
+      const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
+      if (activeView && activeView.file) {
+        const data = this.app.metadataCache.getFileCache(activeView.file) || {}
+        const editor = activeView.editor
+        const settings = getFrontMatterSettingsOrAlternative(data, this.settings)
+
+        if (settings.auto) {
+          replaceHeaderNumbering(data, editor, settings)
+          console.log('Header numbering plugin: automatically numbered document')
+        }
+      }
+    }, 5 * 1000))
   }
 
   async loadSettings () {

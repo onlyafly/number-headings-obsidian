@@ -3,11 +3,13 @@ export interface HeaderNumberingPluginSettings {
   maxLevel: number,
   styleLevel1: string,
   styleLevelOther: string,
+  auto: boolean
 }
 
 export const DEFAULT_SETTINGS: HeaderNumberingPluginSettings = {
   skipTopLevel: false,
-  maxLevel: 10,
+  maxLevel: 6,
   styleLevel1: '1',
-  styleLevelOther: '1'
+  styleLevelOther: '1',
+  auto: false
 }
