@@ -28,7 +28,6 @@ class NumberingDoneModal extends Modal {
     const noButton = containerForButtons.createEl('button', { })
     noButton.setText('No')
     noButton.onClickEvent((ev: MouseEvent) => {
-      console.log('testing 123 no')
       this.close()
       return ev
     })
@@ -36,7 +35,6 @@ class NumberingDoneModal extends Modal {
     const yesButton = containerForButtons.createEl('button', { })
     yesButton.setText('Yes, save settings in document')
     yesButton.onClickEvent((ev: MouseEvent) => {
-      console.log('testing 123 yes')
       this.config.saveSettingsCallback()
       this.close()
       return ev

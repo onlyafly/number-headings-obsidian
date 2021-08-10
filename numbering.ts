@@ -130,7 +130,7 @@ export const replaceHeaderNumbering = (
 
     if (level === previousLevel) {
       const x = numberingStack.pop()
-      if (x) {
+      if (x !== undefined) {
         numberingStack.push(nextNumberingToken(x))
       }
     } else if (level < previousLevel) {
@@ -138,7 +138,7 @@ export const replaceHeaderNumbering = (
         numberingStack.pop()
       }
       const x = numberingStack.pop()
-      if (x) {
+      if (x !== undefined) {
         numberingStack.push(nextNumberingToken(x))
       }
     } else if (level > previousLevel) {
