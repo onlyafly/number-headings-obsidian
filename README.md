@@ -21,6 +21,7 @@ You can also assign the commands to hotkeys for easy usage.
 | ----------------------------------------------- | --------------- |
 | Number all headings in document                 | None by default |
 | Remove numbering from all headings in document  | None by default |
+| Save settings to front matter                   | None by default |
 
 ## Credits
 

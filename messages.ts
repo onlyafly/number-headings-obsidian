@@ -1,14 +1,15 @@
 import { App, Modal } from 'obsidian'
 
-interface NumberDoneModalConfig {
+export interface NumberingDoneConfig {
   message: string
   preformattedMessage: string
+  saveSettingsCallback: () => void
 }
 
 class NumberingDoneModal extends Modal {
-  config: NumberDoneModalConfig
+  config: NumberingDoneConfig
 
-  constructor (app: App, config: NumberDoneModalConfig) {
+  constructor (app: App, config: NumberingDoneConfig) {
     super(app)
     this.config = config
   }
@@ -28,6 +29,7 @@ class NumberingDoneModal extends Modal {
     noButton.setText('No')
     noButton.onClickEvent((ev: MouseEvent) => {
       console.log('testing 123 no')
+      this.close()
       return ev
     })
 
@@ -35,6 +37,8 @@ class NumberingDoneModal extends Modal {
     yesButton.setText('Yes, save settings in document')
     yesButton.onClickEvent((ev: MouseEvent) => {
       console.log('testing 123 yes')
+      this.config.saveSettingsCallback()
+      this.close()
       return ev
     })
   }
@@ -46,13 +50,9 @@ class NumberingDoneModal extends Modal {
   }
 }
 
-export function showNumberingDoneMessage (app: App, message: string, preformattedMessage: string) {
+export function showNumberingDoneMessage (app: App, config: NumberingDoneConfig) {
   const leaf = app.workspace.activeLeaf
   if (leaf) {
-    const config = {
-      message,
-      preformattedMessage
-    }
     new NumberingDoneModal(app, config).open()
   }
 }
