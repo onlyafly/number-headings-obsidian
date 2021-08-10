@@ -18,6 +18,10 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     containerEl.createEl('h2', { text: 'Header Numbering - Settings' })
 
+    containerEl.createEl('div', { text: 'To add numbering to your document, bring up the command window (on Mac, type CMD+P), and then type "Header Numbering" to see a list of available commands.' })
+
+    containerEl.createEl('br', { })
+
     containerEl.createEl('div', { text: 'If the document has front matter defined with the below settings, the project-wide settings defined on this screen will be ignored. You can define front matter like this:' })
 
     containerEl.createEl('pre', {
@@ -82,7 +86,14 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Automatic numbering')
-      .setDesc('Turns on automatic numbering. You must enable this in front matter (see example above) with "header-numbering-auto". Valid values are true or false.')
+      .setDesc('Turns on automatic numbering. Use "header-numbering-auto" to define in the front matter. Valid values are true or false.')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.auto)
+        .setTooltip('Turn on automatic numbering')
+        .onChange(async (value) => {
+          this.plugin.settings.auto = value
+          await this.plugin.saveSettings()
+        }))
   }
 }
 

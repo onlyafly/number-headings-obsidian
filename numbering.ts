@@ -196,7 +196,7 @@ export const getFrontMatterSettingsOrProvided = (
     const styleLevelOther = (styleLevelOtherEntry !== '1' && styleLevelOtherEntry !== 'A') ? alternativeSettings.styleLevelOther : styleLevelOtherEntry
 
     const autoEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
-    const auto = (autoEntry !== true) ? false : autoEntry
+    const auto = (autoEntry !== true && autoEntry !== false) ? alternativeSettings.auto : autoEntry
 
     return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
   } else {
@@ -241,28 +241,20 @@ export const saveSettingsToFrontMatter = (
       frontmatterAdditions += `header-numbering-style-level-other: ${settings.styleLevelOther}\n`
     }
     if (frontmatter['header-numbering-auto'] === undefined) {
-      frontmatterAdditions += 'header-numbering-auto: true\n'
+      frontmatterAdditions += `header-numbering-auto: ${settings.auto}\n`
     }
 
     const from: EditorPosition = { line: frontMatterLine, ch: 0 }
     const to: EditorPosition = { line: frontMatterLine, ch: 0 }
     editor.replaceRange(frontmatterAdditions, from, to)
-
-    /*
-    frontmatter['header-numbering-skip-top-level'] = settings.skipTopLevel
-    frontmatter['header-numbering-max-level'] = settings.maxLevel
-    frontmatter['header-numbering-style-level-1'] = settings.styleLevel1
-    frontmatter['header-numbering-style-level-other'] = settings.styleLevelOther
-    frontmatter['header-numbering-auto'] = settings.auto
-    */
   } else {
     // NOTE: Formatting below is very important!
     const newFrontmatterString = `---
-header-numbering-skip-top-level: true
-header-numbering-max-level: 3
-header-numbering-style-level-1: A
-header-numbering-style-level-other: 1
-header-numbering-auto: true
+header-numbering-skip-top-level: ${settings.skipTopLevel}
+header-numbering-max-level: ${settings.maxLevel}
+header-numbering-style-level-1: ${settings.styleLevel1}
+header-numbering-style-level-other: ${settings.styleLevelOther}
+header-numbering-auto: ${settings.auto}
 ---
 
 `
