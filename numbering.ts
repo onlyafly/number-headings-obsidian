@@ -2,7 +2,7 @@ import { CachedMetadata, Editor, EditorPosition, EditorRange, HeadingCache, pars
 import { HeaderNumberingPluginSettings } from 'settingsTypes'
 
 function makeHeaderHashString (editor: Editor, heading: HeadingCache): string | undefined {
-  const regex = /^#+/g
+  const regex = /^\s{0,4}#+/g
   const headerLineString = editor.getLine(heading.position.start.line)
   if (!headerLineString) return undefined
 
@@ -16,7 +16,7 @@ function makeHeaderHashString (editor: Editor, heading: HeadingCache): string | 
   }
 
   const match = matches[0]
-  return match
+  return match.trimLeft()
 }
 
 function makeNumberingString (numberingStack: NumberingToken[]): string {
@@ -35,7 +35,7 @@ function makeNumberingString (numberingStack: NumberingToken[]): string {
 }
 
 function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
-  const regex = /^#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )+/g
+  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )+/g
   const headerLineString = editor.getLine(heading.position.start.line)
   if (!headerLineString) return undefined
 
@@ -156,8 +156,9 @@ export const replaceHeaderNumbering = (
     }
 
     const prefixRange = getHeaderPrefixRange(editor, heading)
-    if (!prefixRange) return
+    if (prefixRange === undefined) return
     const headerHashString = makeHeaderHashString(editor, heading)
+    if (headerHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
     editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
   }
@@ -169,8 +170,9 @@ export const removeHeaderNumbering = (
 ) => {
   for (const heading of headings) {
     const prefixRange = getHeaderPrefixRange(editor, heading)
-    if (!prefixRange) return
+    if (prefixRange === undefined) return
     const headerHashString = makeHeaderHashString(editor, heading)
+    if (headerHashString === undefined) return
     const prefixString = makeNumberingString([])
     editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
   }

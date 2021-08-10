@@ -187,7 +187,8 @@ export default class HeaderNumberingPlugin extends Plugin {
 
         if (settings.auto) {
           replaceHeaderNumbering(data, editor, settings)
-          console.log('Header numbering plugin: automatically numbered document')
+          // eslint-disable-next-line no-console
+          console.log('Header Numbering Plugin: automatically numbered document')
         }
       }
     }, 5 * 1000))
