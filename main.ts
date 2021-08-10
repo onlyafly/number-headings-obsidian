@@ -1,4 +1,4 @@
-import { showJobDoneMessage } from 'messages'
+import { showNumberingDoneMessage } from 'messages'
 import { getFrontMatterSettingsOrProvided as getFrontMatterSettingsOrAlternative, removeHeaderNumbering, replaceHeaderNumbering } from 'numbering'
 import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { DEFAULT_SETTINGS, HeaderNumberingPluginSettings } from 'settingsTypes'
@@ -109,17 +109,15 @@ export default class HeaderNumberingPlugin extends Plugin {
 
             replaceHeaderNumbering(data, editor, settings)
 
-            showJobDoneMessage(
+            showNumberingDoneMessage(
               this.app,
               `Successfully updated all header numbering in the document, using the settings below. 
               See settings panel to change how headings are numbered, or use front matter
               (see settings panel).`,
-              `
-header-numbering-skip-top-level: ${settings.skipTopLevel}
-header-numbering-max-level: ${settings.maxLevel}
-header-numbering-style-level-1: ${settings.styleLevel1}
-header-numbering-style-level-other: ${settings.styleLevelOther}
-`
+              `  header-numbering-skip-top-level: ${settings.skipTopLevel}
+  header-numbering-max-level: ${settings.maxLevel}
+  header-numbering-style-level-1: ${settings.styleLevel1}
+  header-numbering-style-level-other: ${settings.styleLevelOther}`
             )
           }
 
@@ -141,7 +139,7 @@ header-numbering-style-level-other: ${settings.styleLevelOther}
             const data = this.app.metadataCache.getFileCache(activeView.file) || {}
             removeHeaderNumbering(data, editor)
 
-            showJobDoneMessage(this.app, 'Successfully removed all header numbering in the document.', '')
+            showNumberingDoneMessage(this.app, 'Successfully removed all header numbering in the document.', '')
           }
 
           return true

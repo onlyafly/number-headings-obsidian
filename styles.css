@@ -1,0 +1,8 @@
+div.header-numbering-button-container > button {
+  font-weight: normal;
+}
+
+div.header-numbering-question {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
