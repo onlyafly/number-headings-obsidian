@@ -1,5 +1,7 @@
 # Number Headings Plugin for Obsidian
 
+(I recently renamed this plugin from `header-numbering-obsidian` to `number-headings-obsidian` to be compatible with Obsidian's naming, as recommended by Obsidian's authors.)
+
 Numbers headings in a doc with outline style numbering. For example, "1.1.2".
 
 ## How to install
