@@ -178,24 +178,32 @@ export const removeNumberHeadings = (
   }
 }
 
-export const getFrontMatterSettingsOrProvided = (
+export const getFrontMatterSettingsOrAlternative = (
   { frontmatter }: CachedMetadata,
   alternativeSettings: NumberHeadingsPluginSettings
 ): NumberHeadingsPluginSettings => {
   if (frontmatter !== undefined) {
-    const skipTopLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-skip-top-level')
+    // NOTE: some of the below keys are for backwards compatibility
+
+    const skipTopLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-skip-top-level') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-skip-top-level')
     const skipTopLevel = (skipTopLevelEntry !== true && skipTopLevelEntry !== false) ? alternativeSettings.skipTopLevel : skipTopLevelEntry
 
-    const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-max-level')
+    const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-max-level') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-max-level')
     const maxLevel = (typeof maxLevelEntry !== 'number' || maxLevelEntry < 1 || maxLevelEntry > 6) ? alternativeSettings.maxLevel : maxLevelEntry
 
-    const styleLevel1Entry = String(parseFrontMatterEntry(frontmatter, 'number-headings-style-level-1'))
+    const styleLevel1Entry = String(
+      parseFrontMatterEntry(frontmatter, 'number-headings-style-level-1') ??
+      parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1')
+    )
     const styleLevel1 = (styleLevel1Entry !== '1' && styleLevel1Entry !== 'A') ? alternativeSettings.styleLevel1 : styleLevel1Entry
 
-    const styleLevelOtherEntry = String(parseFrontMatterEntry(frontmatter, 'number-headings-style-level-other'))
+    const styleLevelOtherEntry = String(
+      parseFrontMatterEntry(frontmatter, 'number-headings-style-level-other') ??
+      parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other')
+    )
     const styleLevelOther = (styleLevelOtherEntry !== '1' && styleLevelOtherEntry !== 'A') ? alternativeSettings.styleLevelOther : styleLevelOtherEntry
 
-    const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto')
+    const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
     const auto = (autoEntry !== true && autoEntry !== false) ? alternativeSettings.auto : autoEntry
 
     return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }

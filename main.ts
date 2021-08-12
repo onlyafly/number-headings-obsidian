@@ -1,6 +1,6 @@
 import { getViewInfo, isViewActive } from 'activeViewHelpers'
 import { NumberingDoneConfig, showNumberingDoneMessage } from 'messages'
-import { getFrontMatterSettingsOrProvided as getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'numbering'
+import { getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'numbering'
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from 'settingsTypes'
 
@@ -21,7 +21,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     containerEl.createEl('div', { text: 'To add numbering to your document, bring up the command window (on Mac, type CMD+P), and then type "Number Headings" to see a list of available commands.' })
 
-    containerEl.createEl('br', { })
+    containerEl.createEl('br', {})
 
     containerEl.createEl('div', { text: 'If the document has front matter defined with the below settings, the project-wide settings defined on this screen will be ignored. You can define front matter like this:' })
 
