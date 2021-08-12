@@ -1,4 +1,4 @@
-# Header Numbering Plugin for Obsidian
+# Number Headings Plugin for Obsidian
 
 Numbers headings in a doc with outline style numbering. For example, "1.1.2".
 
@@ -7,9 +7,9 @@ Numbers headings in a doc with outline style numbering. For example, "1.1.2".
 There are two ways to get the plugin:
 
 1. Install the latest release from Obsidian directly.
-2. Unzip the most recent release into your `<vault>/.obsidian/plugins/` folder. You can find the latest release at <https://github.com/onlyafly/header-numbering-obsidian/releases/latest>.
+2. Unzip the most recent release into your `<vault>/.obsidian/plugins/` folder. You can find the latest release at <https://github.com/onlyafly/number-headings-obsidian/releases/latest>.
 
-After you have installed the plugin, make sure that the switch for "Header Numbering" is turned on.
+After you have installed the plugin, make sure that the switch for "Number Headings" is turned on.
 
 You will see this plugin's commands in the command palette, by typing `CMD + P`.
 

@@ -1,10 +1,10 @@
 {
-  "name": "header-numbering-obsidian",
-  "version": "1.4.2",
-  "description": "This is a header numbering plugin for Obsidian (https://obsidian.md)",
+  "name": "number-headings-obsidian",
+  "version": "1.5.0",
+  "description": "This is plugin for numbering headings for Obsidian (https://obsidian.md)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/onlyafly/header-numbering-obsidian.git"
+    "url": "git+https://github.com/onlyafly/number-headings-obsidian.git"
   },
   "main": "main.js",
   "scripts": {

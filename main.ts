@@ -1,12 +1,13 @@
+import { getViewInfo, isViewActive } from 'activeViewHelpers'
 import { NumberingDoneConfig, showNumberingDoneMessage } from 'messages'
-import { getFrontMatterSettingsOrProvided as getFrontMatterSettingsOrAlternative, removeHeaderNumbering, replaceHeaderNumbering, saveSettingsToFrontMatter } from 'numbering'
-import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian'
-import { DEFAULT_SETTINGS, HeaderNumberingPluginSettings } from 'settingsTypes'
+import { getFrontMatterSettingsOrProvided as getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'numbering'
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
+import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from 'settingsTypes'
 
-class HeaderNumberingPluginSettingTab extends PluginSettingTab {
-  plugin: HeaderNumberingPlugin
+class NumberHeadingsPluginSettingTab extends PluginSettingTab {
+  plugin: NumberHeadingsPlugin
 
-  constructor (app: App, plugin: HeaderNumberingPlugin) {
+  constructor (app: App, plugin: NumberHeadingsPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
@@ -16,9 +17,9 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     containerEl.empty()
 
-    containerEl.createEl('h2', { text: 'Header Numbering - Settings' })
+    containerEl.createEl('h2', { text: 'Number Headings - Settings' })
 
-    containerEl.createEl('div', { text: 'To add numbering to your document, bring up the command window (on Mac, type CMD+P), and then type "Header Numbering" to see a list of available commands.' })
+    containerEl.createEl('div', { text: 'To add numbering to your document, bring up the command window (on Mac, type CMD+P), and then type "Number Headings" to see a list of available commands.' })
 
     containerEl.createEl('br', { })
 
@@ -31,17 +32,17 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
     tags:
     - space
     - science-fiction
-    header-numbering-skip-top-level: true
-    header-numbering-max-level: 3
-    header-numbering-style-level-1: A
-    header-numbering-style-level-other: 1
-    header-numbering-auto: true
+    number-headings-skip-top-level: true
+    number-headings-max-level: 3
+    number-headings-style-level-1: A
+    number-headings-style-level-other: 1
+    number-headings-auto: true
     ---`
     })
 
     new Setting(containerEl)
       .setName('Skip top heading level')
-      .setDesc('If selected, numbering will not be applied to the top heading level. Use "header-numbering-skip-top-level" to define in front matter.')
+      .setDesc('If selected, numbering will not be applied to the top heading level. Use "number-headings-skip-top-level" to define in front matter.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.skipTopLevel)
         .setTooltip('Skip top heading level')
@@ -52,7 +53,7 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Maximum heading level')
-      .setDesc('Maximum heading level to number. Use "header-numbering-max-level" to define in front matter.')
+      .setDesc('Maximum heading level to number. Use "number-headings-max-level" to define in front matter.')
       .addSlider(slider => slider
         .setLimits(1, 6, 1)
         .setValue(this.plugin.settings.maxLevel)
@@ -65,7 +66,7 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Style for level 1 headings')
       .setDesc(`Defines the numbering style for level one headings. Valid values are 1 (for numbers) or A (for capital letters).
-                Use "header-numbering-style-level-1" to define in front matter.`)
+                Use "number-headings-style-level-1" to define in front matter.`)
       .addText(text => text
         .setValue(this.plugin.settings.styleLevel1)
         .onChange(async (value) => {
@@ -76,7 +77,7 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Style for lower level headings (below level 1)')
       .setDesc(`Defines the numbering style for headings below level one. Valid values are 1 (for numbers) or A (for capital letters).
-                Use "header-numbering-style-level-other" to define in front matter.`)
+                Use "number-headings-style-level-other" to define in front matter.`)
       .addText(text => text
         .setValue(this.plugin.settings.styleLevelOther)
         .onChange(async (value) => {
@@ -86,7 +87,7 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Automatic numbering')
-      .setDesc('Turns on automatic numbering. Use "header-numbering-auto" to define in the front matter. Valid values are true or false.')
+      .setDesc('Turns on automatic numbering. Use "number-headings-auto" to define in the front matter. Valid values are true or false.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.auto)
         .setTooltip('Turn on automatic numbering')
@@ -97,12 +98,12 @@ class HeaderNumberingPluginSettingTab extends PluginSettingTab {
   }
 }
 
-export default class HeaderNumberingPlugin extends Plugin {
-  settings: HeaderNumberingPluginSettings
+export default class NumberHeadingsPlugin extends Plugin {
+  settings: NumberHeadingsPluginSettings
 
   async onload () {
     // eslint-disable-next-line no-console
-    console.info('Loading Header Numbering Plugin, version ' + this.manifest.version)
+    console.info('Loading Number Headings Plugin, version ' + this.manifest.version)
 
     await this.loadSettings()
 
@@ -110,41 +111,28 @@ export default class HeaderNumberingPlugin extends Plugin {
       id: 'number-headings',
       name: 'Number all headings in document',
       checkCallback: (checking: boolean) => {
-        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-        if (activeView && activeView.file) {
-          if (!checking) {
-            const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-            const editor = activeView.editor
-            const settings = getFrontMatterSettingsOrAlternative(data, this.settings)
+        if (checking) return isViewActive(this.app)
 
-            replaceHeaderNumbering(data, editor, settings)
+        const viewInfo = getViewInfo(this.app)
+        if (viewInfo) {
+          const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
+          replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
 
-            const saveSettingsCallback = () => {
-              const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-              if (activeView && activeView.file) {
-                const editor = activeView.editor
-                const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-                const settings = getFrontMatterSettingsOrAlternative(data, this.settings)
-                saveSettingsToFrontMatter(data, editor, settings)
-              }
-            }
-            const config: NumberingDoneConfig = {
-              message: `Successfully updated all header numbering in the document, using the settings below. 
+          const saveSettingsCallback = () => {
+            saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, settings)
+          }
+          const config: NumberingDoneConfig = {
+            message: `Successfully updated all heading numbers in the document, using the settings below. 
               See settings panel to change how headings are numbered, or use front matter
               (see settings panel).`,
-              preformattedMessage: `  header-numbering-skip-top-level: ${settings.skipTopLevel}
-  header-numbering-max-level: ${settings.maxLevel}
-  header-numbering-style-level-1: ${settings.styleLevel1}
-  header-numbering-style-level-other: ${settings.styleLevelOther}`,
-              saveSettingsCallback
-            }
-            showNumberingDoneMessage(this.app, config)
+            preformattedMessage: `  number-headings-skip-top-level: ${settings.skipTopLevel}
+  number-headings-max-level: ${settings.maxLevel}
+  number-headings-style-level-1: ${settings.styleLevel1}
+  number-headings-style-level-other: ${settings.styleLevelOther}`,
+            saveSettingsCallback
           }
-
-          return true
+          showNumberingDoneMessage(this.app, config)
         }
-
-        return false // This command is not available if the view is not selected
       }
     })
 
@@ -152,18 +140,12 @@ export default class HeaderNumberingPlugin extends Plugin {
       id: 'remove-number-headings',
       name: 'Remove numbering from all headings in document',
       checkCallback: (checking: boolean) => {
-        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-        if (activeView && activeView.file) {
-          if (!checking) {
-            const editor = activeView.editor
-            const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-            removeHeaderNumbering(data, editor)
-          }
+        if (checking) return isViewActive(this.app)
 
-          return true
+        const viewInfo = getViewInfo(this.app)
+        if (viewInfo) {
+          removeNumberHeadings(viewInfo.data, viewInfo.editor)
         }
-
-        return false // This command is not available if the view is not selected
       }
     })
 
@@ -171,35 +153,27 @@ export default class HeaderNumberingPlugin extends Plugin {
       id: 'save-settings-to-front-matter',
       name: 'Save settings to front matter',
       checkCallback: (checking: boolean) => {
-        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-        if (activeView && activeView.file) {
-          if (!checking) {
-            const editor = activeView.editor
-            const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-            const settings = getFrontMatterSettingsOrAlternative(data, this.settings)
-            saveSettingsToFrontMatter(data, editor, settings)
-          }
+        if (checking) return isViewActive(this.app)
 
-          return true
+        const viewInfo = getViewInfo(this.app)
+        if (viewInfo) {
+          const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
+          saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, settings)
         }
-
-        return false // This command is not available if the view is not selected
       }
     })
 
-    this.addSettingTab(new HeaderNumberingPluginSettingTab(this.app, this))
+    this.addSettingTab(new NumberHeadingsPluginSettingTab(this.app, this))
 
     this.registerInterval(window.setInterval(() => {
-      const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-      if (activeView && activeView.file) {
-        const data = this.app.metadataCache.getFileCache(activeView.file) || {}
-        const editor = activeView.editor
-        const settings = getFrontMatterSettingsOrAlternative(data, this.settings)
+      const viewInfo = getViewInfo(this.app)
+      if (viewInfo) {
+        const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
 
         if (settings.auto) {
-          replaceHeaderNumbering(data, editor, settings)
+          replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
           // eslint-disable-next-line no-console
-          console.log('Header Numbering Plugin: automatically numbered document')
+          console.log('Number Headings Plugin: automatically numbered document')
         }
       }
     }, 5 * 1000))

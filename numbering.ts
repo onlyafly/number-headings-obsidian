@@ -1,17 +1,17 @@
 import { CachedMetadata, Editor, EditorPosition, EditorRange, HeadingCache, parseFrontMatterEntry } from 'obsidian'
-import { HeaderNumberingPluginSettings } from 'settingsTypes'
+import { NumberHeadingsPluginSettings } from 'settingsTypes'
 
-function makeHeaderHashString (editor: Editor, heading: HeadingCache): string | undefined {
+function makeHeadingHashString (editor: Editor, heading: HeadingCache): string | undefined {
   const regex = /^\s{0,4}#+/g
-  const headerLineString = editor.getLine(heading.position.start.line)
-  if (!headerLineString) return undefined
+  const headingLineString = editor.getLine(heading.position.start.line)
+  if (!headingLineString) return undefined
 
-  const matches = headerLineString.match(regex)
+  const matches = headingLineString.match(regex)
   if (!matches) return undefined
 
   if (matches.length !== 1) {
     // eslint-disable-next-line no-console
-    console.log("Unexpected header format: '" + headerLineString + "'")
+    console.log("Unexpected heading format: '" + headingLineString + "'")
     return undefined
   }
 
@@ -34,16 +34,16 @@ function makeNumberingString (numberingStack: NumberingToken[]): string {
   return numberingString
 }
 
-function getHeaderPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
+function getHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
   const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )+/g
-  const headerLineString = editor.getLine(heading.position.start.line)
-  if (!headerLineString) return undefined
+  const headingLineString = editor.getLine(heading.position.start.line)
+  if (!headingLineString) return undefined
 
-  const matches = headerLineString.match(regex)
+  const matches = headingLineString.match(regex)
 
   if (matches && matches.length !== 1) {
     // eslint-disable-next-line no-console
-    console.log("Unexpected header format: '" + headerLineString + "'")
+    console.log("Unexpected heading format: '" + headingLineString + "'")
     return undefined
   }
 
@@ -96,10 +96,10 @@ function nextNumberingToken (t: NumberingToken): NumberingToken {
   return 1
 }
 
-export const replaceHeaderNumbering = (
+export const replaceNumberHeadings = (
   { headings = [] }: CachedMetadata,
   editor: Editor,
-  settings: HeaderNumberingPluginSettings
+  settings: NumberHeadingsPluginSettings
 ) => {
   let previousLevel = 1
 
@@ -114,16 +114,16 @@ export const replaceHeaderNumbering = (
 
     const level = heading.level
 
-    // Remove any header numbering in these two cases:
+    // Remove any heading numbers in these two cases:
     // 1. this is a top level and we are skipping top level headings
     // 2. this level is higher than the max level setting
     if ((settings.skipTopLevel && level === 1) || (level > settings.maxLevel)) {
-      const prefixRange = getHeaderPrefixRange(editor, heading)
+      const prefixRange = getHeadingPrefixRange(editor, heading)
 
       if (prefixRange) {
-        const headerHashString = makeHeaderHashString(editor, heading)
+        const headingHashString = makeHeadingHashString(editor, heading)
         const prefixString = makeNumberingString([])
-        editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+        editor.replaceRange(headingHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
       }
       continue
     }
@@ -155,47 +155,47 @@ export const replaceHeaderNumbering = (
       continue
     }
 
-    const prefixRange = getHeaderPrefixRange(editor, heading)
+    const prefixRange = getHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
-    const headerHashString = makeHeaderHashString(editor, heading)
-    if (headerHashString === undefined) return
+    const headingHashString = makeHeadingHashString(editor, heading)
+    if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
-    editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+    editor.replaceRange(headingHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
   }
 }
 
-export const removeHeaderNumbering = (
+export const removeNumberHeadings = (
   { headings = [] }: CachedMetadata,
   editor: Editor
 ) => {
   for (const heading of headings) {
-    const prefixRange = getHeaderPrefixRange(editor, heading)
+    const prefixRange = getHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
-    const headerHashString = makeHeaderHashString(editor, heading)
-    if (headerHashString === undefined) return
+    const headingHashString = makeHeadingHashString(editor, heading)
+    if (headingHashString === undefined) return
     const prefixString = makeNumberingString([])
-    editor.replaceRange(headerHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+    editor.replaceRange(headingHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
   }
 }
 
 export const getFrontMatterSettingsOrProvided = (
   { frontmatter }: CachedMetadata,
-  alternativeSettings: HeaderNumberingPluginSettings
-): HeaderNumberingPluginSettings => {
+  alternativeSettings: NumberHeadingsPluginSettings
+): NumberHeadingsPluginSettings => {
   if (frontmatter !== undefined) {
-    const skipTopLevelEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-skip-top-level')
+    const skipTopLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-skip-top-level')
     const skipTopLevel = (skipTopLevelEntry !== true && skipTopLevelEntry !== false) ? alternativeSettings.skipTopLevel : skipTopLevelEntry
 
-    const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-max-level')
+    const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-max-level')
     const maxLevel = (typeof maxLevelEntry !== 'number' || maxLevelEntry < 1 || maxLevelEntry > 6) ? alternativeSettings.maxLevel : maxLevelEntry
 
-    const styleLevel1Entry = String(parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1'))
+    const styleLevel1Entry = String(parseFrontMatterEntry(frontmatter, 'number-headings-style-level-1'))
     const styleLevel1 = (styleLevel1Entry !== '1' && styleLevel1Entry !== 'A') ? alternativeSettings.styleLevel1 : styleLevel1Entry
 
-    const styleLevelOtherEntry = String(parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other'))
+    const styleLevelOtherEntry = String(parseFrontMatterEntry(frontmatter, 'number-headings-style-level-other'))
     const styleLevelOther = (styleLevelOtherEntry !== '1' && styleLevelOtherEntry !== 'A') ? alternativeSettings.styleLevelOther : styleLevelOtherEntry
 
-    const autoEntry = parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
+    const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto')
     const auto = (autoEntry !== true && autoEntry !== false) ? alternativeSettings.auto : autoEntry
 
     return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
@@ -207,7 +207,7 @@ export const getFrontMatterSettingsOrProvided = (
 export const saveSettingsToFrontMatter = (
   { frontmatter }: CachedMetadata,
   editor: Editor,
-  settings: HeaderNumberingPluginSettings
+  settings: NumberHeadingsPluginSettings
 ) => {
   if (frontmatter !== undefined) {
     // Front matter already exists, so we'll need to insert the settings into the front matter
@@ -223,25 +223,25 @@ export const saveSettingsToFrontMatter = (
       }
     }
     if (frontMatterLine === -1) {
-      throw new Error('Header Numbering Plugin: Front matter not found at start of document.')
+      throw new Error('Number Headings Plugin: Front matter not found at start of document.')
     }
 
     let frontmatterAdditions = ''
 
-    if (frontmatter['header-numbering-skip-top-level'] === undefined) {
-      frontmatterAdditions += `header-numbering-skip-top-level: ${settings.skipTopLevel}\n`
+    if (frontmatter['number-headings-skip-top-level'] === undefined) {
+      frontmatterAdditions += `number-headings-skip-top-level: ${settings.skipTopLevel}\n`
     }
-    if (frontmatter['header-numbering-max-level'] === undefined) {
-      frontmatterAdditions += `header-numbering-max-level: ${settings.maxLevel}\n`
+    if (frontmatter['number-headings-max-level'] === undefined) {
+      frontmatterAdditions += `number-headings-max-level: ${settings.maxLevel}\n`
     }
-    if (frontmatter['header-numbering-style-level-1'] === undefined) {
-      frontmatterAdditions += `header-numbering-style-level-1: ${settings.styleLevel1}\n`
+    if (frontmatter['number-headings-style-level-1'] === undefined) {
+      frontmatterAdditions += `number-headings-style-level-1: ${settings.styleLevel1}\n`
     }
-    if (frontmatter['header-numbering-style-level-other'] === undefined) {
-      frontmatterAdditions += `header-numbering-style-level-other: ${settings.styleLevelOther}\n`
+    if (frontmatter['number-headings-style-level-other'] === undefined) {
+      frontmatterAdditions += `number-headings-style-level-other: ${settings.styleLevelOther}\n`
     }
-    if (frontmatter['header-numbering-auto'] === undefined) {
-      frontmatterAdditions += `header-numbering-auto: ${settings.auto}\n`
+    if (frontmatter['number-headings-auto'] === undefined) {
+      frontmatterAdditions += `number-headings-auto: ${settings.auto}\n`
     }
 
     const from: EditorPosition = { line: frontMatterLine, ch: 0 }
@@ -250,11 +250,11 @@ export const saveSettingsToFrontMatter = (
   } else {
     // NOTE: Formatting below is very important!
     const newFrontmatterString = `---
-header-numbering-skip-top-level: ${settings.skipTopLevel}
-header-numbering-max-level: ${settings.maxLevel}
-header-numbering-style-level-1: ${settings.styleLevel1}
-header-numbering-style-level-other: ${settings.styleLevelOther}
-header-numbering-auto: ${settings.auto}
+number-headings-skip-top-level: ${settings.skipTopLevel}
+number-headings-max-level: ${settings.maxLevel}
+number-headings-style-level-1: ${settings.styleLevel1}
+number-headings-style-level-other: ${settings.styleLevelOther}
+number-headings-auto: ${settings.auto}
 ---
 
 `

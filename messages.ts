@@ -16,14 +16,14 @@ class NumberingDoneModal extends Modal {
 
   onOpen () {
     const { contentEl, titleEl } = this
-    titleEl.setText('Header Numbering - Successfully Completed')
+    titleEl.setText('Number Headings - Successfully Completed')
 
     contentEl.createEl('div', { text: this.config.message })
     contentEl.createEl('pre', { text: this.config.preformattedMessage })
 
-    contentEl.createEl('div', { text: "Do you want to save these settings in the document's front matter?", cls: 'header-numbering-question' })
+    contentEl.createEl('div', { text: "Do you want to save these settings in the document's front matter?", cls: 'number-headings-question' })
 
-    const containerForButtons = contentEl.createEl('div', { cls: 'header-numbering-button-container' })
+    const containerForButtons = contentEl.createEl('div', { cls: 'number-headings-button-container' })
 
     const noButton = containerForButtons.createEl('button', { })
     noButton.setText('No')

@@ -1,4 +1,4 @@
-export interface HeaderNumberingPluginSettings {
+export interface NumberHeadingsPluginSettings {
   skipTopLevel: boolean,
   maxLevel: number,
   styleLevel1: string,
@@ -6,7 +6,7 @@ export interface HeaderNumberingPluginSettings {
   auto: boolean
 }
 
-export const DEFAULT_SETTINGS: HeaderNumberingPluginSettings = {
+export const DEFAULT_SETTINGS: NumberHeadingsPluginSettings = {
   skipTopLevel: false,
   maxLevel: 6,
   styleLevel1: '1',

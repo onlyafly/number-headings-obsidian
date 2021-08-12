@@ -8,4 +8,4 @@ build:
 	npm run dev
 
 local-deploy:
-	cp -R . ~/Dropbox/KPA\ Brain/.obsidian/plugins/header-numbering-obsidian
+	cp -R . ~/Dropbox/KPA\ Brain/.obsidian/plugins/number-headings-obsidian
