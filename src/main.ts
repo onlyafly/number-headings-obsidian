@@ -1,8 +1,8 @@
-import { getViewInfo, isViewActive } from 'activeViewHelpers'
-import { NumberingDoneConfig, showNumberingDoneMessage } from 'messages'
-import { getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'numbering'
+import { getViewInfo, isViewActive } from 'src/activeViewHelpers'
+import { NumberingDoneConfig, showNumberingDoneMessage } from 'src/messages'
+import { getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'src/numbering'
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
-import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from 'settingsTypes'
+import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from 'src/settingsTypes'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
   plugin: NumberHeadingsPlugin
@@ -99,9 +99,9 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 }
 
 export default class NumberHeadingsPlugin extends Plugin {
-  settings: NumberHeadingsPluginSettings
+  settings!: NumberHeadingsPluginSettings
 
-  async onload () {
+  async onload (): Promise<void> {
     // eslint-disable-next-line no-console
     console.info('Loading Number Headings Plugin, version ' + this.manifest.version)
 
@@ -118,7 +118,7 @@ export default class NumberHeadingsPlugin extends Plugin {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
           replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
 
-          const saveSettingsCallback = () => {
+          const saveSettingsCallback = (): void => {
             saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, settings)
           }
           const config: NumberingDoneConfig = {
@@ -179,11 +179,11 @@ export default class NumberHeadingsPlugin extends Plugin {
     }, 5 * 1000))
   }
 
-  async loadSettings () {
+  async loadSettings (): Promise<void> {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
   }
 
-  async saveSettings () {
+  async saveSettings (): Promise<void> {
     await this.saveData(this.settings)
   }
 }

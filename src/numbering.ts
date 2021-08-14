@@ -1,5 +1,5 @@
 import { CachedMetadata, Editor, EditorPosition, EditorRange, HeadingCache, parseFrontMatterEntry } from 'obsidian'
-import { NumberHeadingsPluginSettings } from 'settingsTypes'
+import { NumberHeadingsPluginSettings } from 'src/settingsTypes'
 
 function makeHeadingHashString (editor: Editor, heading: HeadingCache): string | undefined {
   const regex = /^\s{0,4}#+/g
@@ -100,7 +100,7 @@ export const replaceNumberHeadings = (
   { headings = [] }: CachedMetadata,
   editor: Editor,
   settings: NumberHeadingsPluginSettings
-) => {
+): void => {
   let previousLevel = 1
 
   const numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
@@ -167,7 +167,7 @@ export const replaceNumberHeadings = (
 export const removeNumberHeadings = (
   { headings = [] }: CachedMetadata,
   editor: Editor
-) => {
+): void => {
   for (const heading of headings) {
     const prefixRange = getHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
@@ -216,7 +216,7 @@ export const saveSettingsToFrontMatter = (
   { frontmatter }: CachedMetadata,
   editor: Editor,
   settings: NumberHeadingsPluginSettings
-) => {
+): void => {
   if (frontmatter !== undefined) {
     // Front matter already exists, so we'll need to insert the settings into the front matter
 

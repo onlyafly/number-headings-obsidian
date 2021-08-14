@@ -14,7 +14,7 @@ class NumberingDoneModal extends Modal {
     this.config = config
   }
 
-  onOpen () {
+  onOpen (): void {
     const { contentEl, titleEl } = this
     titleEl.setText('Number Headings - Successfully Completed')
 
@@ -41,14 +41,14 @@ class NumberingDoneModal extends Modal {
     })
   }
 
-  onClose () {
+  onClose (): void {
     const { contentEl, titleEl } = this
     contentEl.empty()
     titleEl.empty()
   }
 }
 
-export function showNumberingDoneMessage (app: App, config: NumberingDoneConfig) {
+export function showNumberingDoneMessage (app: App, config: NumberingDoneConfig): void {
   const leaf = app.workspace.activeLeaf
   if (leaf) {
     new NumberingDoneModal(app, config).open()
