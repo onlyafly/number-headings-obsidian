@@ -1,7 +1,7 @@
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { getViewInfo, isViewActive } from 'src/activeViewHelpers'
 import { NumberingDoneConfig, showNumberingDoneMessage } from 'src/messages'
 import { getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'src/numbering'
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from 'src/settingsTypes'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
@@ -133,6 +133,8 @@ export default class NumberHeadingsPlugin extends Plugin {
           }
           showNumberingDoneMessage(this.app, config)
         }
+
+        return false
       }
     })
 
@@ -146,6 +148,8 @@ export default class NumberHeadingsPlugin extends Plugin {
         if (viewInfo) {
           removeNumberHeadings(viewInfo.data, viewInfo.editor)
         }
+
+        return true
       }
     })
 
@@ -160,6 +164,8 @@ export default class NumberHeadingsPlugin extends Plugin {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
           saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, settings)
         }
+
+        return false
       }
     })
 
