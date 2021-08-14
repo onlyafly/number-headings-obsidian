@@ -25,6 +25,16 @@ You can also assign the commands to hotkeys for easy usage.
 | Remove numbering from all headings in document  | None by default |
 | Save settings to front matter                   | None by default |
 
+## Version History
+
+### 1.6.0 (August 14, 2021)
+
+* Simplified the front matter settings to use a single key
+
+### 1.5.1 (August 14, 2021)
+
+* Fixed some bugs where "undefined" sometimes got printed at the start of lines after user removed a heading
+
 ## Credits
 
 I was inspired partially by the Obsidian plugin <https://github.com/hipstersmoothie/obsidian-plugin-toc> and some of the code logic is descended from that plugin. Thanks!
@@ -43,22 +53,22 @@ I was inspired partially by the Obsidian plugin <https://github.com/hipstersmoot
 
 ### Releasing new releases
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: <https://github.com/obsidianmd/obsidian-sample-plugin/releases>
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments.
-- Publish the release.
+* Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
+* Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
+* Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: <https://github.com/obsidianmd/obsidian-sample-plugin/releases>
+* Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments.
+* Publish the release.
 
 ### Adding your plugin to the community plugin list
 
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at <https://github.com/obsidianmd/obsidian-releases> to add your plugin.
+* Publish an initial version.
+* Make sure you have a `README.md` file in the root of your repo.
+* Make a pull request at <https://github.com/obsidianmd/obsidian-releases> to add your plugin.
 
 ### Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+* Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
 
-### API Documentation
+### Obsidian API Documentation
 
 See <https://github.com/obsidianmd/obsidian-api>

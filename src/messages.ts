@@ -3,7 +3,7 @@ import { App, Modal } from 'obsidian'
 export interface NumberingDoneConfig {
   message: string
   preformattedMessage: string
-  saveSettingsCallback: () => void
+  saveSettingsCallback: (shouldAddAutoFlag: boolean) => void
 }
 
 class NumberingDoneModal extends Modal {
@@ -35,7 +35,15 @@ class NumberingDoneModal extends Modal {
     const yesButton = containerForButtons.createEl('button', { })
     yesButton.setText('Yes, save settings in document')
     yesButton.onClickEvent((ev: MouseEvent) => {
-      this.config.saveSettingsCallback()
+      this.config.saveSettingsCallback(false)
+      this.close()
+      return ev
+    })
+
+    const yesAndAutoButton = containerForButtons.createEl('button', { })
+    yesAndAutoButton.setText('Yes, save settings in document, and automatically number')
+    yesAndAutoButton.onClickEvent((ev: MouseEvent) => {
+      this.config.saveSettingsCallback(true)
       this.close()
       return ev
     })

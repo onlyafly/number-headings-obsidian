@@ -1,9 +1,9 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { getViewInfo, isViewActive } from './activeViewHelpers'
+import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 import { NumberingDoneConfig, showNumberingDoneMessage } from './messages'
 import { removeNumberHeadings, replaceNumberHeadings } from './numbering'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
-import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
   plugin: NumberHeadingsPlugin
@@ -31,19 +31,41 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     alias:
     - Example Alias
     tags:
-    - space
-    - science-fiction
-    number-headings-skip-top-level: true
-    number-headings-max-level: 3
-    number-headings-style-level-1: A
-    number-headings-style-level-other: 1
-    number-headings-auto: true
+    - example-tag
+    number headings: max 6, 1.1, auto
     ---`
+    })
+
+    containerEl.createEl('div', {
+      text: `
+      The 'number-headings' front matter key is used to store numbering settings specific to the file. There are three settings
+      in the value to the right of the colon, separated by commas.
+    `
+    })
+
+    const ul = containerEl.createEl('ul', {})
+    ul.createEl('li', {
+      text: `
+      If 'auto' appears there, the document will be automatically numbered.
+    `
+    })
+    ul.createEl('li', {
+      text: `
+      If 'max 6' appears, the headings above level 6 will be skipped.
+    `
+    })
+    ul.createEl('li', {
+      text: `
+      A style text like '1.1', 'A.1', or '_.1.1' tells the plugin how to format the headings.
+      For example, '1.1' means both top level and other headings will be numbered starting from '1'.
+      For example, 'A.1' means top level headings will be numbered starting from 'A'.
+      For example, '_.A.1' means top level headings will NOT be numbered, but the next levels will be numbered with letters and numbers.
+    `
     })
 
     new Setting(containerEl)
       .setName('Skip top heading level')
-      .setDesc('If selected, numbering will not be applied to the top heading level. Use "number-headings-skip-top-level" to define in front matter.')
+      .setDesc('If selected, numbering will not be applied to the top heading level.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.skipTopLevel)
         .setTooltip('Skip top heading level')
@@ -54,7 +76,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Maximum heading level')
-      .setDesc('Maximum heading level to number. Use "number-headings-max-level" to define in front matter.')
+      .setDesc('Maximum heading level to number.')
       .addSlider(slider => slider
         .setLimits(1, 6, 1)
         .setValue(this.plugin.settings.maxLevel)
@@ -66,8 +88,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Style for level 1 headings')
-      .setDesc(`Defines the numbering style for level one headings. Valid values are 1 (for numbers) or A (for capital letters).
-                Use "number-headings-style-level-1" to define in front matter.`)
+      .setDesc('Defines the numbering style for level one headings. Valid values are 1 (for numbers) or A (for capital letters).')
       .addText(text => text
         .setValue(this.plugin.settings.styleLevel1)
         .onChange(async (value) => {
@@ -77,8 +98,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Style for lower level headings (below level 1)')
-      .setDesc(`Defines the numbering style for headings below level one. Valid values are 1 (for numbers) or A (for capital letters).
-                Use "number-headings-style-level-other" to define in front matter.`)
+      .setDesc('Defines the numbering style for headings below level one. Valid values are 1 (for numbers) or A (for capital letters).')
       .addText(text => text
         .setValue(this.plugin.settings.styleLevelOther)
         .onChange(async (value) => {
@@ -88,7 +108,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Automatic numbering')
-      .setDesc('Turns on automatic numbering. Use "number-headings-auto" to define in the front matter. Valid values are true or false.')
+      .setDesc('Turns on automatic numbering of documents.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.auto)
         .setTooltip('Turn on automatic numbering')
@@ -119,17 +139,19 @@ export default class NumberHeadingsPlugin extends Plugin {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
           replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
 
-          const saveSettingsCallback = (): void => {
-            saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, settings)
+          const saveSettingsCallback = (shouldAddAutoFlag: boolean): void => {
+            const tweakedSettings = { ...settings }
+            if (shouldAddAutoFlag) tweakedSettings.auto = true
+            saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, tweakedSettings)
           }
           const config: NumberingDoneConfig = {
             message: `Successfully updated all heading numbers in the document, using the settings below. 
               See settings panel to change how headings are numbered, or use front matter
               (see settings panel).`,
-            preformattedMessage: `  number-headings-skip-top-level: ${settings.skipTopLevel}
-  number-headings-max-level: ${settings.maxLevel}
-  number-headings-style-level-1: ${settings.styleLevel1}
-  number-headings-style-level-other: ${settings.styleLevelOther}`,
+            preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
+  Maximum heading level: ${settings.maxLevel}
+  Style for level 1 headings: ${settings.styleLevel1}
+  Style for lower level headings (below level 1): ${settings.styleLevelOther}`,
             saveSettingsCallback
           }
           showNumberingDoneMessage(this.app, config)
