@@ -1,8 +1,9 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
-import { getViewInfo, isViewActive } from 'src/activeViewHelpers'
-import { NumberingDoneConfig, showNumberingDoneMessage } from 'src/messages'
-import { getFrontMatterSettingsOrAlternative, removeNumberHeadings, replaceNumberHeadings, saveSettingsToFrontMatter } from 'src/numbering'
-import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from 'src/settingsTypes'
+import { getViewInfo, isViewActive } from './activeViewHelpers'
+import { NumberingDoneConfig, showNumberingDoneMessage } from './messages'
+import { removeNumberHeadings, replaceNumberHeadings } from './numbering'
+import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
+import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
   plugin: NumberHeadingsPlugin
