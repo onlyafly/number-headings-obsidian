@@ -96,6 +96,15 @@ function nextNumberingToken (t: NumberingToken): NumberingToken {
   return 1
 }
 
+// Replace a range, but only if there is a change in text, to prevent poluting the undo stack
+function replaceRangeSafely (editor: Editor, range: EditorRange, text: string): void {
+  const previousText = editor.getRange(range.from, range.to)
+
+  if (previousText !== text) {
+    editor.replaceRange(text, range.from, range.to)
+  }
+}
+
 export const replaceNumberHeadings = (
   { headings = [] }: CachedMetadata,
   editor: Editor,
@@ -124,7 +133,7 @@ export const replaceNumberHeadings = (
         const headingHashString = makeHeadingHashString(editor, heading)
         if (headingHashString === undefined) continue
         const prefixString = makeNumberingString([])
-        editor.replaceRange(headingHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+        replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + ' ')
       }
       continue
     }
@@ -161,7 +170,7 @@ export const replaceNumberHeadings = (
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
-    editor.replaceRange(headingHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+    replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + ' ')
   }
 }
 
@@ -175,6 +184,6 @@ export const removeNumberHeadings = (
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString([])
-    editor.replaceRange(headingHashString + prefixString + ' ', prefixRange.from, prefixRange.to)
+    replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + ' ')
   }
 }

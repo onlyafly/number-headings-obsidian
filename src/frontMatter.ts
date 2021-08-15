@@ -128,7 +128,7 @@ export const saveSettingsToFrontMatter = (
       editor.replaceRange(frontMatterAdditions, from, to)
     }
   } else {
-    // NOTE: Formatting below is very important!
+    // No frontmatter found, create frontmatter from scratch
     const v = settingsToCompactFrontMatterValue(settings)
     const newFrontMatter = `---\nnumber headings: ${v}\n---\n\n`
     const from: EditorPosition = { line: 0, ch: 0 }

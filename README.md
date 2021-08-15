@@ -27,6 +27,10 @@ You can also assign the commands to hotkeys for easy usage.
 
 ## Version History
 
+### 1.6.1 (August 15, 2021)
+
+* Improved how headings are inserted, so that the undo history is not polluted with too many irrelevant changes.
+
 ### 1.6.0 (August 14, 2021)
 
 * Simplified the front matter settings to use a single key
