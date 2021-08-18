@@ -27,6 +27,10 @@ You can also assign the commands to hotkeys for easy usage.
 
 ## Version History
 
+### 1.7.0 (August 18, 2021)
+
+* Added support for custom separators between the heading numbering and the heading text.
+
 ### 1.6.1 (August 15, 2021)
 
 * Improved how headings are inserted, so that the undo history is not polluted with too many irrelevant changes.
