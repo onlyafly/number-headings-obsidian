@@ -132,8 +132,7 @@ export const replaceNumberHeadings = (
       if (prefixRange) {
         const headingHashString = makeHeadingHashString(editor, heading)
         if (headingHashString === undefined) continue
-        const prefixString = makeNumberingString([])
-        replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + settings.separator + ' ')
+        replaceRangeSafely(editor, prefixRange, headingHashString + ' ')
       }
       continue
     }

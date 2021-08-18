@@ -27,6 +27,10 @@ You can also assign the commands to hotkeys for easy usage.
 
 ## Version History
 
+### 1.7.1 (August 18, 2021)
+
+* Fixed bug where skipped headings might have separators incorrectly inserted.
+
 ### 1.7.0 (August 18, 2021)
 
 * Added support for custom separators between the heading numbering and the heading text.
