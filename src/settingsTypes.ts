@@ -3,7 +3,8 @@ export interface NumberHeadingsPluginSettings {
   maxLevel: number,
   styleLevel1: string,
   styleLevelOther: string,
-  auto: boolean
+  auto: boolean,
+  separator: string
 }
 
 export const DEFAULT_SETTINGS: NumberHeadingsPluginSettings = {
@@ -11,7 +12,8 @@ export const DEFAULT_SETTINGS: NumberHeadingsPluginSettings = {
   maxLevel: 6,
   styleLevel1: '1',
   styleLevelOther: '1',
-  auto: false
+  auto: false,
+  separator: ''
 }
 
 export function isValidLevelStyle (s: string): boolean {
@@ -26,5 +28,10 @@ export function isValidFlag (f: unknown): boolean {
 
 export function isValidMaxLevel (x: unknown): boolean {
   if (typeof x === 'number' && x >= 1 && x <= 6) return true
+  return false
+}
+
+export function isValidSeparator (x: unknown): boolean {
+  if (typeof x === 'string' && (x === '' || x === ':' || x === '.' || x === '-')) return true
   return false
 }

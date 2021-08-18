@@ -1,7 +1,7 @@
 import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
-import { DEFAULT_SETTINGS, isValidFlag, isValidLevelStyle, isValidMaxLevel, NumberHeadingsPluginSettings } from './settingsTypes'
+import { DEFAULT_SETTINGS, isValidFlag, isValidLevelStyle, isValidMaxLevel, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
 
-function compactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
+function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
   if (entry) {
     const entryString = String(entry)
@@ -10,16 +10,27 @@ function compactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPlugin
 
     for (const part of parts) {
       const cleanPart = part.trim()
+      if (cleanPart.length === 0) continue
+
       if (cleanPart === 'auto') {
+        // Parse auto numbering part
         settings.auto = true
       } else if (cleanPart.startsWith('max')) {
+        // Parse max level part
         const nstring = cleanPart.substring(4)
         const n = parseInt(nstring)
         if (isValidMaxLevel(n)) {
           settings.maxLevel = n
         }
       } else {
-        const descriptors = cleanPart.split('.')
+        // Parse formatting part
+        const lastChar = cleanPart[cleanPart.length - 1]
+        let remainingPart = cleanPart
+        if (isValidSeparator(lastChar)) {
+          settings.separator = lastChar
+          remainingPart = cleanPart.substring(0, cleanPart.length - 2)
+        }
+        const descriptors = remainingPart.split('.')
         let firstNumberedDescriptor = 0
         if (descriptors.length > 1 && descriptors[0] === '_') {
           settings.skipTopLevel = true
@@ -51,8 +62,8 @@ export const getFrontMatterSettingsOrAlternative = (
   alternativeSettings: NumberHeadingsPluginSettings
 ): NumberHeadingsPluginSettings => {
   if (frontmatter !== undefined) {
-    const compactSettings = compactFrontMatterSettings(frontmatter)
-    if (compactSettings !== undefined) return compactSettings
+    const decompactedSettings = parseCompactFrontMatterSettings(frontmatter)
+    if (decompactedSettings !== undefined) return decompactedSettings
 
     // NOTE: some of the below keys are for backwards compatibility
 
@@ -77,7 +88,7 @@ export const getFrontMatterSettingsOrAlternative = (
     const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
     const auto = isValidFlag(autoEntry) ? autoEntry : alternativeSettings.auto
 
-    return { skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
+    return { ...DEFAULT_SETTINGS, skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
   } else {
     return alternativeSettings
   }
@@ -87,7 +98,7 @@ function settingsToCompactFrontMatterValue (settings: NumberHeadingsPluginSettin
   const autoPart = settings.auto ? 'auto, ' : ''
   const maxPart = (`max ${settings.maxLevel}, `)
   const skipTopLevelString = settings.skipTopLevel ? '_.' : ''
-  const stylePart = `${skipTopLevelString}${settings.styleLevel1}.${settings.styleLevelOther}`
+  const stylePart = `${skipTopLevelString}${settings.styleLevel1}.${settings.styleLevelOther}${settings.separator}`
   return autoPart + maxPart + stylePart
 }
 

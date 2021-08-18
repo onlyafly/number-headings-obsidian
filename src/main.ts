@@ -62,6 +62,14 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
       For example, '_.A.1' means top level headings will NOT be numbered, but the next levels will be numbered with letters and numbers.
     `
     })
+    ul.createEl('li', {
+      text: `
+      If a style string ends with '.' (a dot), ':' (a colon), or '-' (a dash), the heading numnbers will be separated from the heading title
+      with that symbol.
+      For example, '1.1:' means headings will look like '## 2.4: Example Heading'
+      For example, 'A.1-' means headings will look like '## B.5- Example Heading'
+    `
+    })
 
     new Setting(containerEl)
       .setName('Skip top heading level')
@@ -116,6 +124,16 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
           this.plugin.settings.auto = value
           await this.plugin.saveSettings()
         }))
+
+    new Setting(containerEl)
+      .setName('Separator style')
+      .setDesc('Defines the separator style between the heading number and the heading text. Valid values are : (colon) or . (dot) or - (dash). You can also leave it blank for no separator.')
+      .addText(text => text
+        .setValue(this.plugin.settings.separator)
+        .onChange(async (value) => {
+          this.plugin.settings.separator = value
+          await this.plugin.saveSettings()
+        }))
   }
 }
 
@@ -151,7 +169,8 @@ export default class NumberHeadingsPlugin extends Plugin {
             preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
   Maximum heading level: ${settings.maxLevel}
   Style for level 1 headings: ${settings.styleLevel1}
-  Style for lower level headings (below level 1): ${settings.styleLevelOther}`,
+  Style for lower level headings (below level 1): ${settings.styleLevelOther}
+  Separator: ${settings.separator}`,
             saveSettingsCallback
           }
           showNumberingDoneMessage(this.app, config)

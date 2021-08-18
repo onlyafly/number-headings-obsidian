@@ -35,7 +35,7 @@ function makeNumberingString (numberingStack: NumberingToken[]): string {
 }
 
 function getHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
-  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )+/g
+  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?[:.-]?( )+/g
   const headingLineString = editor.getLine(heading.position.start.line)
   if (!headingLineString) return undefined
 
@@ -133,7 +133,7 @@ export const replaceNumberHeadings = (
         const headingHashString = makeHeadingHashString(editor, heading)
         if (headingHashString === undefined) continue
         const prefixString = makeNumberingString([])
-        replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + ' ')
+        replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + settings.separator + ' ')
       }
       continue
     }
@@ -170,7 +170,7 @@ export const replaceNumberHeadings = (
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
-    replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + ' ')
+    replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + settings.separator + ' ')
   }
 }
 
@@ -183,7 +183,6 @@ export const removeNumberHeadings = (
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
-    const prefixString = makeNumberingString([])
-    replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + ' ')
+    replaceRangeSafely(editor, prefixRange, headingHashString + ' ')
   }
 }
