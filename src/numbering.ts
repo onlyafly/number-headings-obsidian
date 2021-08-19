@@ -1,4 +1,4 @@
-import { CachedMetadata, Editor, EditorRange, HeadingCache } from 'obsidian'
+import { CachedMetadata, Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { NumberHeadingsPluginSettings } from './settingsTypes'
 
 function makeHeadingHashString (editor: Editor, heading: HeadingCache): string | undefined {
@@ -97,11 +97,15 @@ function nextNumberingToken (t: NumberingToken): NumberingToken {
 }
 
 // Replace a range, but only if there is a change in text, to prevent poluting the undo stack
-function replaceRangeSafely (editor: Editor, range: EditorRange, text: string): void {
+function replaceRangeSafely (editor: Editor, changes: EditorChange[], range: EditorRange, text: string): void {
   const previousText = editor.getRange(range.from, range.to)
 
   if (previousText !== text) {
-    editor.replaceRange(text, range.from, range.to)
+    changes.push({
+      text: text,
+      from: range.from,
+      to: range.to
+    })
   }
 }
 
@@ -118,6 +122,8 @@ export const replaceNumberHeadings = (
     previousLevel = 2
   }
 
+  const changes: EditorChange[] = []
+
   for (const heading of headings) {
     // Update the numbering stack based on the level and previous level
 
@@ -132,7 +138,7 @@ export const replaceNumberHeadings = (
       if (prefixRange) {
         const headingHashString = makeHeadingHashString(editor, heading)
         if (headingHashString === undefined) continue
-        replaceRangeSafely(editor, prefixRange, headingHashString + ' ')
+        replaceRangeSafely(editor, changes, prefixRange, headingHashString + ' ')
       }
       continue
     }
@@ -169,7 +175,13 @@ export const replaceNumberHeadings = (
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
-    replaceRangeSafely(editor, prefixRange, headingHashString + prefixString + settings.separator + ' ')
+    replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
+  }
+
+  if (changes.length > 0) {
+    editor.transaction({
+      changes: changes
+    })
   }
 }
 
@@ -177,11 +189,19 @@ export const removeNumberHeadings = (
   { headings = [] }: CachedMetadata,
   editor: Editor
 ): void => {
+  const changes: EditorChange[] = []
+
   for (const heading of headings) {
     const prefixRange = getHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
-    replaceRangeSafely(editor, prefixRange, headingHashString + ' ')
+    replaceRangeSafely(editor, changes, prefixRange, headingHashString + ' ')
+  }
+
+  if (changes.length > 0) {
+    editor.transaction({
+      changes: changes
+    })
   }
 }
