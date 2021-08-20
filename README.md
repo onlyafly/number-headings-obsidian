@@ -27,6 +27,10 @@ You can also assign the commands to hotkeys for easy usage.
 
 ## Version History
 
+### 1.7.3 (TBD)
+
+* Cleaned up explanations of front matter in settings screen.
+
 ### 1.7.2 (August 19, 2021)
 
 * Improved how numbering is inserted behind the scenes, so that undo history is preserved better and works faster.

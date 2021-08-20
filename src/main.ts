@@ -38,35 +38,53 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     containerEl.createEl('div', {
       text: `
-      The 'number-headings' front matter key is used to store numbering settings specific to the file. There are three settings
+      The 'number headings' front matter key is used to store numbering settings specific to the file. There are three possible options
       in the value to the right of the colon, separated by commas.
     `
     })
 
     const ul = containerEl.createEl('ul', {})
-    ul.createEl('li', {
-      text: `
-      If 'auto' appears there, the document will be automatically numbered.
-    `
-    })
-    ul.createEl('li', {
-      text: `
-      If 'max 6' appears, the headings above level 6 will be skipped.
-    `
-    })
-    ul.createEl('li', {
-      text: `
+
+    const li1 = ul.createEl('li', { })
+    li1.createEl('b', { text: 'Automatic numbering' })
+    li1.createEl('span', { text: ': If \'auto\' appears, the document will be automatically numbered.' })
+
+    const li2 = ul.createEl('li', { })
+    li2.createEl('b', { text: 'Maximum level to number' })
+    li2.createEl('span', { text: ': If \'max 6\' appears, the headings above level 6 will be skipped.' })
+
+    const li3 = ul.createEl('li', { })
+    li3.createEl('b', { text: 'Numbering style' })
+    li3.createEl('span', {
+      text: `:
       A style text like '1.1', 'A.1', or '_.1.1' tells the plugin how to format the headings.
+      If a style string ends with '.' (a dot), ':' (a colon), or '-' (a dash), the heading numbers will be separated from the heading title
+      with that symbol.`
+    })
+
+    const ul3 = li3.createEl('ul', {})
+    ul3.createEl('li', {
+      text: `      
       For example, '1.1' means both top level and other headings will be numbered starting from '1'.
+    `
+    })
+    ul3.createEl('li', {
+      text: `      
       For example, 'A.1' means top level headings will be numbered starting from 'A'.
+    `
+    })
+    ul3.createEl('li', {
+      text: `      
       For example, '_.A.1' means top level headings will NOT be numbered, but the next levels will be numbered with letters and numbers.
     `
     })
-    ul.createEl('li', {
-      text: `
-      If a style string ends with '.' (a dot), ':' (a colon), or '-' (a dash), the heading numnbers will be separated from the heading title
-      with that symbol.
+    ul3.createEl('li', {
+      text: `      
       For example, '1.1:' means headings will look like '## 2.4: Example Heading'
+    `
+    })
+    ul3.createEl('li', {
+      text: `      
       For example, 'A.1-' means headings will look like '## B.5- Example Heading'
     `
     })
