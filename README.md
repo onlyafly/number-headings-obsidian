@@ -27,7 +27,7 @@ You can also assign the commands to hotkeys for easy usage.
 
 ## Version History
 
-### 1.7.3 (TBD)
+### 1.7.3 (August 24, 2021)
 
 * Cleaned up explanations of front matter in settings screen.
 
