@@ -22,6 +22,13 @@ function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsP
         if (isValidMaxLevel(n)) {
           settings.maxLevel = n
         }
+      } else if (cleanPart.startsWith('contents')) {
+        if (cleanPart.length <= 9) continue
+        // Parse contents heading part
+        const tocHeading = cleanPart.substring(9)
+        if (tocHeading && tocHeading.length > 0 && tocHeading.startsWith('^')) {
+          // FIXME settings.contentsHeading = tocHeading
+        }
       } else {
         // Parse formatting part
         const lastChar = cleanPart[cleanPart.length - 1]

@@ -122,6 +122,9 @@ export const replaceNumberHeadings = (
     previousLevel = 2
   }
 
+  let tocHeading: HeadingCache | undefined
+  let tocText = ''
+
   const changes: EditorChange[] = []
 
   for (const heading of headings) {
@@ -143,6 +146,7 @@ export const replaceNumberHeadings = (
       continue
     }
 
+    // Adjust numbering stack
     if (level === previousLevel) {
       const x = numberingStack.pop()
       if (x !== undefined) {
@@ -170,14 +174,38 @@ export const replaceNumberHeadings = (
       continue
     }
 
+    // Find the range to replace, and then do it
     const prefixRange = getHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
     replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
+
+    // Handle table of contents work
+    if (heading.heading.endsWith('^toc')) {
+      tocHeading = heading
+    }
+    if (tocHeading !== undefined) {
+      tocText += '* ' + heading.heading + '\n'
+    }
   }
 
+  // Insert the generated table of contents
+  if (tocText.length > 0 && tocHeading) {
+    const from = {
+      line: tocHeading.position.start.line + 1,
+      ch: 0
+    }
+    const to = {
+      line: tocHeading.position.start.line + 1,
+      ch: 0
+    }
+    const range = { from, to }
+    replaceRangeSafely(editor, changes, range, tocText)
+  }
+
+  // Execute the transaction to make all the changes at once
   if (changes.length > 0) {
     editor.transaction({
       changes: changes
