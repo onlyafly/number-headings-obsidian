@@ -203,6 +203,12 @@ export const replaceNumberHeadings = (
     }
     const range = { from, to }
     replaceRangeSafely(editor, changes, range, tocText)
+
+    // FIXME:
+    // - Add links
+    // - Remove ^xxx anchors at the end of the heading
+    // - MAke sure the headings reflect the headings after numbers are added
+    // - Make sure any anchor name (besides just ^toc) works
   }
 
   // Execute the transaction to make all the changes at once
