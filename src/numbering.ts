@@ -123,7 +123,7 @@ export const replaceNumberHeadings = (
   }
 
   let tocHeading: HeadingCache | undefined
-  let tocText = ''
+  let tocText = '\n'
 
   const changes: EditorChange[] = []
 
@@ -192,13 +192,33 @@ export const replaceNumberHeadings = (
   }
 
   // Insert the generated table of contents
-  if (tocText.length > 0 && tocHeading) {
+  if (tocText.length > 2 && tocHeading) {
     const from = {
       line: tocHeading.position.start.line + 1,
       ch: 0
     }
+
+    let endingLine = 0
+    let foundList = false
+    for (endingLine = tocHeading.position.start.line + 1; ; endingLine++) {
+      const trimmedLineText = editor.getLine(endingLine).trimStart()
+      if (!foundList) {
+        if (trimmedLineText.startsWith('*')) {
+          foundList = true
+        } else {
+          continue
+        }
+      } else {
+        if (!trimmedLineText.startsWith('*')) {
+          break
+        }
+      }
+    }
+    console.log('toc: endingLine, text ', endingLine, '<<', editor.getLine(endingLine), '>>')
+
+    // eslint-disable-next-line no-unreachable
     const to = {
-      line: tocHeading.position.start.line + 1,
+      line: endingLine,
       ch: 0
     }
     const range = { from, to }
@@ -209,10 +229,12 @@ export const replaceNumberHeadings = (
     // - Remove ^xxx anchors at the end of the heading
     // - MAke sure the headings reflect the headings after numbers are added
     // - Make sure any anchor name (besides just ^toc) works
+    // - Make sure that it works with skipped top level headings
   }
 
   // Execute the transaction to make all the changes at once
   if (changes.length > 0) {
+    console.log('number-headings: found changes to apply', changes.length)
     editor.transaction({
       changes: changes
     })
