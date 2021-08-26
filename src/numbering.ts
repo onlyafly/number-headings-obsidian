@@ -96,6 +96,16 @@ function nextNumberingToken (t: NumberingToken): NumberingToken {
   return 1
 }
 
+function cleanHeadingTextForTOC (headingText: string):string {
+  if (headingText.contains('^')) {
+    const x = headingText.split('^')
+    if (x.length > 1) {
+      return x[0].trim()
+    }
+  }
+  return headingText.trim()
+}
+
 // Replace a range, but only if there is a change in text, to prevent poluting the undo stack
 function replaceRangeSafely (editor: Editor, changes: EditorChange[], range: EditorRange, text: string): void {
   const previousText = editor.getRange(range.from, range.to)
@@ -123,7 +133,7 @@ export const replaceNumberHeadings = (
   }
 
   let tocHeading: HeadingCache | undefined
-  let tocText = '\n'
+  let tocBuilder = '\n'
 
   const changes: EditorChange[] = []
 
@@ -187,12 +197,13 @@ export const replaceNumberHeadings = (
       tocHeading = heading
     }
     if (tocHeading !== undefined) {
-      tocText += '* ' + heading.heading + '\n'
+      const cleanedHeadingText = cleanHeadingTextForTOC(heading.heading)
+      tocBuilder += '* ' + cleanedHeadingText + '\n'
     }
   }
 
   // Insert the generated table of contents
-  if (tocText.length > 2 && tocHeading) {
+  if (tocBuilder.length > 2 && tocHeading) {
     const from = {
       line: tocHeading.position.start.line + 1,
       ch: 0
@@ -216,20 +227,19 @@ export const replaceNumberHeadings = (
     }
     console.log('toc: endingLine, text ', endingLine, '<<', editor.getLine(endingLine), '>>')
 
-    // eslint-disable-next-line no-unreachable
     const to = {
       line: endingLine,
       ch: 0
     }
     const range = { from, to }
-    replaceRangeSafely(editor, changes, range, tocText)
+    replaceRangeSafely(editor, changes, range, tocBuilder)
 
     // FIXME:
     // - Add links
-    // - Remove ^xxx anchors at the end of the heading
     // - MAke sure the headings reflect the headings after numbers are added
     // - Make sure any anchor name (besides just ^toc) works
     // - Make sure that it works with skipped top level headings
+    // - exclude number of table of contents
   }
 
   // Execute the transaction to make all the changes at once
