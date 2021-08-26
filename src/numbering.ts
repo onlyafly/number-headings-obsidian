@@ -265,9 +265,8 @@ export const replaceNumberHeadings = (
     replaceRangeSafely(editor, changes, range, tocBuilder)
 
     // FIXME:
-    // - MAke sure the headings reflect the headings after numbers are added
+    // - MAke sure the headings reflect the headings after numbers are added, by inserting the TOC as a second transaction after the first
     // - Make sure any anchor name (besides just ^toc) works
-    // - Make sure that it works with skipped top level headings
     // - exclude number of table of contents
   }
 
