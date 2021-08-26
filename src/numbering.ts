@@ -1,6 +1,8 @@
 import { CachedMetadata, Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { NumberHeadingsPluginSettings } from './settingsTypes'
 
+const TOC_LIST_ITEM_BULLET = '*'
+
 function makeHeadingHashString (editor: Editor, heading: HeadingCache): string | undefined {
   const regex = /^\s{0,4}#+/g
   const headingLineString = editor.getLine(heading.position.start.line)
@@ -96,14 +98,23 @@ function nextNumberingToken (t: NumberingToken): NumberingToken {
   return 1
 }
 
-function cleanHeadingTextForTOC (headingText: string):string {
-  if (headingText.contains('^')) {
-    const x = headingText.split('^')
+function cleanHeadingTextForToc (htext: string): string {
+  if (htext.contains('^')) {
+    const x = htext.split('^')
     if (x.length > 1) {
       return x[0].trim()
     }
   }
-  return headingText.trim()
+  return htext.trim()
+}
+
+function createTocEntry (h: HeadingCache):string {
+  const text = h.heading
+  const cleanText = cleanHeadingTextForToc(text)
+
+  const entryLink = `[[#${text}|${cleanText}]]`
+
+  return TOC_LIST_ITEM_BULLET + ' ' + entryLink
 }
 
 // Replace a range, but only if there is a change in text, to prevent poluting the undo stack
@@ -197,8 +208,8 @@ export const replaceNumberHeadings = (
       tocHeading = heading
     }
     if (tocHeading !== undefined) {
-      const cleanedHeadingText = cleanHeadingTextForTOC(heading.heading)
-      tocBuilder += '* ' + cleanedHeadingText + '\n'
+      const tocEntry = createTocEntry(heading)
+      tocBuilder += tocEntry + '\n'
     }
   }
 
@@ -209,23 +220,32 @@ export const replaceNumberHeadings = (
       ch: 0
     }
 
+    const startingLine = tocHeading.position.start.line + 1
     let endingLine = 0
     let foundList = false
-    for (endingLine = tocHeading.position.start.line + 1; ; endingLine++) {
-      const trimmedLineText = editor.getLine(endingLine).trimStart()
-      if (!foundList) {
-        if (trimmedLineText.startsWith('*')) {
+    for (endingLine = startingLine; ; endingLine++) {
+      const line = editor.getLine(endingLine)
+      if (line === undefined) {
+        // Reached end of file, insert at the start of the TOC section
+        endingLine = startingLine
+        break
+      }
+      const trimmedLineText = line.trimStart()
+      if (foundList) {
+        if (!trimmedLineText.startsWith(TOC_LIST_ITEM_BULLET)) break
+        if (trimmedLineText.startsWith('#')) break
+      } else {
+        if (trimmedLineText.startsWith(TOC_LIST_ITEM_BULLET)) {
           foundList = true
+        } else if (trimmedLineText.startsWith('#')) {
+          // Reached the next heading without finding existing TOC list, insert at the start of the TOC section
+          endingLine = startingLine
+          break
         } else {
           continue
         }
-      } else {
-        if (!trimmedLineText.startsWith('*')) {
-          break
-        }
       }
     }
-    console.log('toc: endingLine, text ', endingLine, '<<', editor.getLine(endingLine), '>>')
 
     const to = {
       line: endingLine,
@@ -235,7 +255,7 @@ export const replaceNumberHeadings = (
     replaceRangeSafely(editor, changes, range, tocBuilder)
 
     // FIXME:
-    // - Add links
+    // - Indent levels
     // - MAke sure the headings reflect the headings after numbers are added
     // - Make sure any anchor name (besides just ^toc) works
     // - Make sure that it works with skipped top level headings
