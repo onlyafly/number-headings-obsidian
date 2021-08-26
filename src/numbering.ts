@@ -1,7 +1,7 @@
 import { CachedMetadata, Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { NumberHeadingsPluginSettings } from './settingsTypes'
 
-const TOC_LIST_ITEM_BULLET = '*'
+const TOC_LIST_ITEM_BULLET = '-'
 
 function makeHeadingHashString (editor: Editor, heading: HeadingCache): string | undefined {
   const regex = /^\s{0,4}#+/g
@@ -112,9 +112,14 @@ function createTocEntry (h: HeadingCache):string {
   const text = h.heading
   const cleanText = cleanHeadingTextForToc(text)
 
+  let bulletIndent = ''
+  for (let i = 1; i < h.level; i++) {
+    bulletIndent += '\t'
+  }
+
   const entryLink = `[[#${text}|${cleanText}]]`
 
-  return TOC_LIST_ITEM_BULLET + ' ' + entryLink
+  return bulletIndent + TOC_LIST_ITEM_BULLET + ' ' + entryLink
 }
 
 // Replace a range, but only if there is a change in text, to prevent poluting the undo stack
@@ -147,6 +152,8 @@ export const replaceNumberHeadings = (
   let tocBuilder = '\n'
 
   const changes: EditorChange[] = []
+
+  const tempSettingsDotContents = '^toc' // FIXME change to settings.contents
 
   for (const heading of headings) {
     // Update the numbering stack based on the level and previous level
@@ -204,10 +211,12 @@ export const replaceNumberHeadings = (
     replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
 
     // Handle table of contents work
-    if (heading.heading.endsWith('^toc')) {
-      tocHeading = heading
-    }
-    if (tocHeading !== undefined) {
+    if (tempSettingsDotContents !== undefined) {
+      if (heading.heading.endsWith(tempSettingsDotContents)) {
+        // This heading is the TOC heading
+        tocHeading = heading
+      }
+
       const tocEntry = createTocEntry(heading)
       tocBuilder += tocEntry + '\n'
     }
@@ -255,7 +264,6 @@ export const replaceNumberHeadings = (
     replaceRangeSafely(editor, changes, range, tocBuilder)
 
     // FIXME:
-    // - Indent levels
     // - MAke sure the headings reflect the headings after numbers are added
     // - Make sure any anchor name (besides just ^toc) works
     // - Make sure that it works with skipped top level headings
