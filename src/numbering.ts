@@ -108,12 +108,13 @@ function cleanHeadingTextForToc (htext: string): string {
   return htext.trim()
 }
 
-function createTocEntry (h: HeadingCache):string {
+function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings):string {
   const text = h.heading
   const cleanText = cleanHeadingTextForToc(text)
 
   let bulletIndent = ''
-  for (let i = 1; i < h.level; i++) {
+  const startLevel = settings.skipTopLevel ? 2 : 1
+  for (let i = startLevel; i < h.level; i++) {
     bulletIndent += '\t'
   }
 
@@ -217,7 +218,7 @@ export const replaceNumberHeadings = (
         tocHeading = heading
       }
 
-      const tocEntry = createTocEntry(heading)
+      const tocEntry = createTocEntry(heading, settings)
       tocBuilder += tocEntry + '\n'
     }
   }
@@ -272,7 +273,7 @@ export const replaceNumberHeadings = (
 
   // Execute the transaction to make all the changes at once
   if (changes.length > 0) {
-    console.log('number-headings: found changes to apply', changes.length)
+    console.log('number headings plugin: found changes to apply', changes.length)
     editor.transaction({
       changes: changes
     })
