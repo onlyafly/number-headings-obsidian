@@ -152,6 +152,16 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
           this.plugin.settings.separator = value
           await this.plugin.saveSettings()
         }))
+
+    new Setting(containerEl)
+      .setName('Table of Contents Anchor')
+      .setDesc('Anchor which labels the header where a table of contents should be inserted. The anchor should be added at the end of a header. For example, ^toc.')
+      .addText(text => text
+        .setValue(this.plugin.settings.contents)
+        .onChange(async (value) => {
+          this.plugin.settings.contents = value
+          await this.plugin.saveSettings()
+        }))
   }
 }
 

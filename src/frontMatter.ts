@@ -1,5 +1,5 @@
 import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
-import { DEFAULT_SETTINGS, isValidFlag, isValidLevelStyle, isValidMaxLevel, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
+import { DEFAULT_SETTINGS, isValidContents, isValidFlag, isValidLevelStyle, isValidMaxLevel, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
 
 function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
@@ -26,8 +26,8 @@ function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsP
         if (cleanPart.length <= 9) continue
         // Parse contents heading part
         const tocHeading = cleanPart.substring(9)
-        if (tocHeading && tocHeading.length > 0 && tocHeading.startsWith('^')) {
-          // FIXME settings.contentsHeading = tocHeading
+        if (isValidContents(tocHeading)) {
+          settings.contents = tocHeading
         }
       } else {
         // Parse formatting part
@@ -103,10 +103,11 @@ export const getFrontMatterSettingsOrAlternative = (
 
 function settingsToCompactFrontMatterValue (settings: NumberHeadingsPluginSettings): string {
   const autoPart = settings.auto ? 'auto, ' : ''
-  const maxPart = (`max ${settings.maxLevel}, `)
+  const maxPart = `max ${settings.maxLevel}, `
+  const contentsPart = settings.contents && settings.contents.length > 0 ? `contents ${settings.contents}, ` : ''
   const skipTopLevelString = settings.skipTopLevel ? '_.' : ''
   const stylePart = `${skipTopLevelString}${settings.styleLevel1}.${settings.styleLevelOther}${settings.separator}`
-  return autoPart + maxPart + stylePart
+  return autoPart + maxPart + contentsPart + stylePart
 }
 
 function findLineWhichStartsWith (editor: Editor, search: string, afterLine: number): number | undefined {

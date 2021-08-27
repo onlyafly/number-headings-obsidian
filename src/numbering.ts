@@ -1,5 +1,5 @@
 import { CachedMetadata, Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
-import { NumberHeadingsPluginSettings } from './settingsTypes'
+import { doesContentsHaveValue, isValidContents, NumberHeadingsPluginSettings } from './settingsTypes'
 
 const TOC_LIST_ITEM_BULLET = '-'
 
@@ -154,8 +154,6 @@ export const replaceNumberHeadings = (
 
   const changes: EditorChange[] = []
 
-  const tempSettingsDotContents = '^toc' // FIXME change to settings.contents
-
   for (const heading of headings) {
     // Update the numbering stack based on the level and previous level
 
@@ -212,8 +210,8 @@ export const replaceNumberHeadings = (
     replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
 
     // Handle table of contents work
-    if (tempSettingsDotContents !== undefined) {
-      if (heading.heading.endsWith(tempSettingsDotContents)) {
+    if (doesContentsHaveValue(settings.contents)) {
+      if (heading.heading.endsWith(settings.contents)) {
         // This heading is the TOC heading
         tocHeading = heading
       }
@@ -266,7 +264,6 @@ export const replaceNumberHeadings = (
 
     // FIXME:
     // - MAke sure the headings reflect the headings after numbers are added, by inserting the TOC as a second transaction after the first
-    // - Make sure any anchor name (besides just ^toc) works
     // - exclude number of table of contents
   }
 
