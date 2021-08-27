@@ -136,7 +136,7 @@ function replaceRangeSafely (editor: Editor, changes: EditorChange[], range: Edi
   }
 }
 
-export const replaceNumberHeadings = (
+export const updateHeadingNumbering = (
   { headings = [] }: CachedMetadata,
   editor: Editor,
   settings: NumberHeadingsPluginSettings
@@ -276,7 +276,7 @@ export const replaceNumberHeadings = (
   }
 }
 
-export const removeNumberHeadings = (
+export const removeHeadingNumbering = (
   { headings = [] }: CachedMetadata,
   editor: Editor
 ): void => {

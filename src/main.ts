@@ -2,7 +2,7 @@ import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { getViewInfo, isViewActive } from './activeViewHelpers'
 import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 import { NumberingDoneConfig, showNumberingDoneMessage } from './messages'
-import { removeNumberHeadings, replaceNumberHeadings } from './numbering'
+import { removeHeadingNumbering, updateHeadingNumbering } from './numbering'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
@@ -183,7 +183,7 @@ export default class NumberHeadingsPlugin extends Plugin {
         const viewInfo = getViewInfo(this.app)
         if (viewInfo) {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
-          replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
+          updateHeadingNumbering(viewInfo.data, viewInfo.editor, settings)
 
           const saveSettingsCallback = (shouldAddAutoFlag: boolean): void => {
             const tweakedSettings = { ...settings }
@@ -216,7 +216,7 @@ export default class NumberHeadingsPlugin extends Plugin {
 
         const viewInfo = getViewInfo(this.app)
         if (viewInfo) {
-          removeNumberHeadings(viewInfo.data, viewInfo.editor)
+          removeHeadingNumbering(viewInfo.data, viewInfo.editor)
         }
 
         return true
@@ -247,7 +247,7 @@ export default class NumberHeadingsPlugin extends Plugin {
         const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
 
         if (settings.auto) {
-          replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
+          updateHeadingNumbering(viewInfo.data, viewInfo.editor, settings)
           // eslint-disable-next-line no-console
           console.log('Number Headings Plugin: automatically numbered document')
         }
