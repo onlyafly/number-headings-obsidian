@@ -285,21 +285,16 @@ export const updateTableOfContents = (
       }
     }
 
+    if (tocBuilder === '\n') {
+      tocBuilder = ''
+    }
+
     const to = {
       line: endingLine,
       ch: 0
     }
     const range = { from, to }
-    console.log('replacing range for TOC: ', from, to)
-
-    if (tocBuilder === '\n') {
-      tocBuilder = ''
-    }
     replaceRangeSafely(editor, changes, range, tocBuilder)
-
-    // FIXME:
-    // - MAke sure the headings reflect the headings after numbers are added, by inserting the TOC as a second transaction after the first
-    // - exclude number of table of contents
   }
 
   // Execute the transaction to make all the changes at once

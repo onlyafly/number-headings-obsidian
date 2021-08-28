@@ -199,7 +199,6 @@ export default class NumberHeadingsPlugin extends Plugin {
             if (shouldAddAutoFlag) tweakedSettings.auto = true
             saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, tweakedSettings)
           }
-          // FIXME add docs for contents
           const config: NumberingDoneConfig = {
             message: `Successfully updated all heading numbers in the document, using the settings below. 
               See settings panel to change how headings are numbered, or use front matter
