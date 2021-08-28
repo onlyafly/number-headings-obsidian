@@ -20,7 +20,7 @@ function getViewMetadata (app: App): CachedMetadata | undefined {
   return undefined
 }
 
-interface ViewInfo {
+export interface ViewInfo {
   activeView: MarkdownView
   data: CachedMetadata
   editor: Editor

@@ -1,5 +1,6 @@
-import { CachedMetadata, Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
-import { doesContentsHaveValue, isValidContents, NumberHeadingsPluginSettings } from './settingsTypes'
+import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
+import { ViewInfo } from './activeViewHelpers'
+import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
 
 const TOC_LIST_ITEM_BULLET = '-'
 
@@ -137,10 +138,13 @@ function replaceRangeSafely (editor: Editor, changes: EditorChange[], range: Edi
 }
 
 export const updateHeadingNumbering = (
-  { headings = [] }: CachedMetadata,
-  editor: Editor,
+  viewInfo: ViewInfo | undefined,
   settings: NumberHeadingsPluginSettings
 ): void => {
+  if (!viewInfo) return
+  const headings = viewInfo.data.headings ?? []
+  const editor = viewInfo.editor
+
   let previousLevel = 1
 
   const numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
@@ -148,9 +152,6 @@ export const updateHeadingNumbering = (
   if (settings.skipTopLevel) {
     previousLevel = 2
   }
-
-  let tocHeading: HeadingCache | undefined
-  let tocBuilder = '\n'
 
   const changes: EditorChange[] = []
 
@@ -208,6 +209,35 @@ export const updateHeadingNumbering = (
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
     replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
+  }
+
+  // Execute the transaction to make all the changes at once
+  if (changes.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log('Number Headings Plugin: Applying headings numbering changes:', changes.length)
+    editor.transaction({
+      changes: changes
+    })
+  }
+}
+
+export const updateTableOfContents = (
+  viewInfo: ViewInfo | undefined,
+  settings: NumberHeadingsPluginSettings
+): void => {
+  if (!viewInfo) return
+  const headings = viewInfo.data.headings ?? []
+  const editor = viewInfo.editor
+
+  let tocHeading: HeadingCache | undefined
+  let tocBuilder = '\n'
+
+  const changes: EditorChange[] = []
+
+  for (const heading of headings) {
+    if ((settings.skipTopLevel && heading.level === 1) || (heading.level > settings.maxLevel)) {
+      continue
+    }
 
     // Handle table of contents work
     if (doesContentsHaveValue(settings.contents)) {
@@ -269,7 +299,8 @@ export const updateHeadingNumbering = (
 
   // Execute the transaction to make all the changes at once
   if (changes.length > 0) {
-    console.log('number headings plugin: found changes to apply', changes.length)
+    // eslint-disable-next-line no-console
+    console.log('Number Headings Plugin: Applying table of contents changes:', changes.length)
     editor.transaction({
       changes: changes
     })
@@ -277,9 +308,12 @@ export const updateHeadingNumbering = (
 }
 
 export const removeHeadingNumbering = (
-  { headings = [] }: CachedMetadata,
-  editor: Editor
+  viewInfo: ViewInfo | undefined
 ): void => {
+  if (!viewInfo) return
+  const headings = viewInfo.data.headings ?? []
+  const editor = viewInfo.editor
+
   const changes: EditorChange[] = []
 
   for (const heading of headings) {
