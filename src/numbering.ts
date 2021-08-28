@@ -229,30 +229,30 @@ export const updateTableOfContents = (
   const headings = viewInfo.data.headings ?? []
   const editor = viewInfo.editor
 
+  if (!doesContentsHaveValue(settings.contents)) return
+
   let tocHeading: HeadingCache | undefined
   let tocBuilder = '\n'
-
   const changes: EditorChange[] = []
 
   for (const heading of headings) {
+    // ORDERING: Important to find the TOC heading before skipping skipped headings, since that is for numbering
+
+    // Find the TOC heading
+    if (heading.heading.endsWith(settings.contents)) {
+      tocHeading = heading
+    }
+
     if ((settings.skipTopLevel && heading.level === 1) || (heading.level > settings.maxLevel)) {
       continue
     }
 
-    // Handle table of contents work
-    if (doesContentsHaveValue(settings.contents)) {
-      if (heading.heading.endsWith(settings.contents)) {
-        // This heading is the TOC heading
-        tocHeading = heading
-      }
-
-      const tocEntry = createTocEntry(heading, settings)
-      tocBuilder += tocEntry + '\n'
-    }
+    const tocEntry = createTocEntry(heading, settings)
+    tocBuilder += tocEntry + '\n'
   }
 
   // Insert the generated table of contents
-  if (tocBuilder.length > 2 && tocHeading) {
+  if (tocHeading) {
     const from = {
       line: tocHeading.position.start.line + 1,
       ch: 0
@@ -290,6 +290,11 @@ export const updateTableOfContents = (
       ch: 0
     }
     const range = { from, to }
+    console.log('replacing range for TOC: ', from, to)
+
+    if (tocBuilder === '\n') {
+      tocBuilder = ''
+    }
     replaceRangeSafely(editor, changes, range, tocBuilder)
 
     // FIXME:
