@@ -35,7 +35,7 @@ function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsP
         let remainingPart = cleanPart
         if (isValidSeparator(lastChar)) {
           settings.separator = lastChar
-          remainingPart = cleanPart.substring(0, cleanPart.length - 2)
+          remainingPart = cleanPart.substring(0, cleanPart.length - 1)
         }
         const descriptors = remainingPart.split('.')
         let firstNumberedDescriptor = 0
