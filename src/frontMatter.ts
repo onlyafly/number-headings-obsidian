@@ -1,5 +1,10 @@
 import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
-import { DEFAULT_SETTINGS, isValidContents, isValidFlag, isValidLevelStyle, isValidMaxLevel, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
+import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidLevelStyle, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
+
+const AUTO_PART_KEY = 'auto'
+const FIRST_LEVEL_PART_KEY = 'first-level'
+const MAX_LEVEL_PART_KEY = 'max'
+const CONTENTS_PART_KEY = 'contents'
 
 function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
@@ -12,20 +17,27 @@ function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsP
       const cleanPart = part.trim()
       if (cleanPart.length === 0) continue
 
-      if (cleanPart === 'auto') {
+      if (cleanPart === AUTO_PART_KEY) {
         // Parse auto numbering part
         settings.auto = true
-      } else if (cleanPart.startsWith('max')) {
-        // Parse max level part
-        const nstring = cleanPart.substring(4)
+      } else if (cleanPart.startsWith(FIRST_LEVEL_PART_KEY)) {
+        // Parse first level part
+        const nstring = cleanPart.substring(FIRST_LEVEL_PART_KEY.length + 1)
         const n = parseInt(nstring)
-        if (isValidMaxLevel(n)) {
+        if (isValidFirstOrMaxLevel(n)) {
+          settings.firstLevel = n
+        }
+      } else if (cleanPart.startsWith(MAX_LEVEL_PART_KEY)) {
+        // Parse max level part
+        const nstring = cleanPart.substring(MAX_LEVEL_PART_KEY.length + 1)
+        const n = parseInt(nstring)
+        if (isValidFirstOrMaxLevel(n)) {
           settings.maxLevel = n
         }
-      } else if (cleanPart.startsWith('contents')) {
-        if (cleanPart.length <= 9) continue
+      } else if (cleanPart.startsWith(CONTENTS_PART_KEY)) {
+        if (cleanPart.length <= CONTENTS_PART_KEY.length + 1) continue
         // Parse contents heading part
-        const tocHeading = cleanPart.substring(9)
+        const tocHeading = cleanPart.substring(CONTENTS_PART_KEY.length + 1)
         if (isValidContents(tocHeading)) {
           settings.contents = tocHeading
         }
@@ -72,13 +84,13 @@ export const getFrontMatterSettingsOrAlternative = (
     const decompactedSettings = parseCompactFrontMatterSettings(frontmatter)
     if (decompactedSettings !== undefined) return decompactedSettings
 
-    // NOTE: some of the below keys are for backwards compatibility
+    // NOTE: Everything below is for backwards compatibility only
 
     const skipTopLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-skip-top-level') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-skip-top-level')
     const skipTopLevel = isValidFlag(skipTopLevelEntry) ? skipTopLevelEntry : alternativeSettings.skipTopLevel
 
     const maxLevelEntry = parseFrontMatterEntry(frontmatter, 'number-headings-max-level') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-max-level')
-    const maxLevel = isValidMaxLevel(maxLevelEntry) ? maxLevelEntry : alternativeSettings.maxLevel
+    const maxLevel = isValidFirstOrMaxLevel(maxLevelEntry) ? maxLevelEntry : alternativeSettings.maxLevel
 
     const styleLevel1Entry = String(
       parseFrontMatterEntry(frontmatter, 'number-headings-style-level-1') ??
@@ -103,11 +115,12 @@ export const getFrontMatterSettingsOrAlternative = (
 
 function settingsToCompactFrontMatterValue (settings: NumberHeadingsPluginSettings): string {
   const autoPart = settings.auto ? 'auto, ' : ''
+  const firstLevelPart = `first-level ${settings.firstLevel}, `
   const maxPart = `max ${settings.maxLevel}, `
   const contentsPart = settings.contents && settings.contents.length > 0 ? `contents ${settings.contents}, ` : ''
   const skipTopLevelString = settings.skipTopLevel ? '_.' : ''
   const stylePart = `${skipTopLevelString}${settings.styleLevel1}.${settings.styleLevelOther}${settings.separator}`
-  return autoPart + maxPart + contentsPart + stylePart
+  return autoPart + firstLevelPart + maxPart + contentsPart + stylePart
 }
 
 function findLineWhichStartsWith (editor: Editor, search: string, afterLine: number): number | undefined {

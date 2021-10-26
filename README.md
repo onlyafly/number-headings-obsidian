@@ -30,9 +30,11 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
-### 1.8.0 (August 31, 2021)
+### 1.8.0 (October 26, 2021)
 
 * Add automatic table of contents rendering
+* Add first-level setting to allow skipping several heading levels
+* Fixed bug where skipped headings that started with numbers would be erased
 
 ### 1.7.3 (August 24, 2021)
 

@@ -109,12 +109,13 @@ function cleanHeadingTextForToc (htext: string): string {
   return htext.trim()
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings):string {
   const text = h.heading
   const cleanText = cleanHeadingTextForToc(text)
 
   let bulletIndent = ''
-  const startLevel = settings.skipTopLevel ? 2 : 1
+  const startLevel = 1
   for (let i = startLevel; i < h.level; i++) {
     bulletIndent += '\t'
   }
@@ -149,7 +150,9 @@ export const updateHeadingNumbering = (
 
   const numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
 
-  if (settings.skipTopLevel) {
+  if (settings.firstLevel > 1) {
+    previousLevel = settings.firstLevel
+  } else if (settings.skipTopLevel) {
     previousLevel = 2
   }
 
@@ -160,10 +163,16 @@ export const updateHeadingNumbering = (
 
     const level = heading.level
 
-    // Remove any heading numbers in these two cases:
-    // 1. this is a top level and we are skipping top level headings
-    // 2. this level is higher than the max level setting
-    if ((settings.skipTopLevel && level === 1) || (level > settings.maxLevel)) {
+    // Handle skipped & ignored levels
+    if (settings.firstLevel > level) {
+      // Leave these headings as they are (this allows people to have numbers at the start of ignored headings)
+      continue
+    } else if ((settings.skipTopLevel && level === 1) || (level > settings.maxLevel)) {
+      // Remove any heading numbers in these two cases:
+      // 1. this is a top level and we are skipping top level headings
+      // 2. this level is higher than the max level setting
+
+      /* This would allow skipped headings to be stripped of their numbering, but this makes it difficult to truly skip a heading
       const prefixRange = getHeadingPrefixRange(editor, heading)
 
       if (prefixRange) {
@@ -171,6 +180,8 @@ export const updateHeadingNumbering = (
         if (headingHashString === undefined) continue
         replaceRangeSafely(editor, changes, prefixRange, headingHashString + ' ')
       }
+      */
+
       continue
     }
 
@@ -243,9 +254,11 @@ export const updateTableOfContents = (
       tocHeading = heading
     }
 
+    /* This code lets us skip TOC lines for skipped headings, but doesn't work well with first-level setting
     if ((settings.skipTopLevel && heading.level === 1) || (heading.level > settings.maxLevel)) {
       continue
     }
+    */
 
     const tocEntry = createTocEntry(heading, settings)
     tocBuilder += tocEntry + '\n'

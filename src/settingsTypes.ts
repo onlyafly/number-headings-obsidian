@@ -1,5 +1,6 @@
 export interface NumberHeadingsPluginSettings {
   skipTopLevel: boolean,
+  firstLevel: number,
   maxLevel: number,
   styleLevel1: string,
   styleLevelOther: string,
@@ -10,6 +11,7 @@ export interface NumberHeadingsPluginSettings {
 
 export const DEFAULT_SETTINGS: NumberHeadingsPluginSettings = {
   skipTopLevel: false,
+  firstLevel: 1,
   maxLevel: 6,
   styleLevel1: '1',
   styleLevelOther: '1',
@@ -28,7 +30,7 @@ export function isValidFlag (f: unknown): boolean {
   return false
 }
 
-export function isValidMaxLevel (x: unknown): boolean {
+export function isValidFirstOrMaxLevel (x: unknown): boolean {
   if (typeof x === 'number' && x >= 1 && x <= 6) return true
   return false
 }

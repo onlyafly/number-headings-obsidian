@@ -32,7 +32,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     - Example Alias
     tags:
     - example-tag
-    number headings: max 6, 1.1, auto, contents ^toc
+    number headings: first-level 1, max 6, 1.1, auto, contents ^toc
     ---`
     })
 
@@ -45,9 +45,13 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     const ul = containerEl.createEl('ul', {})
 
+    const li0 = ul.createEl('li', { })
+    li0.createEl('b', { text: 'Automatic numbering' })
+    li0.createEl('span', { text: ': If \'auto\' appears, the document will be automatically numbered.' })
+
     const li1 = ul.createEl('li', { })
-    li1.createEl('b', { text: 'Automatic numbering' })
-    li1.createEl('span', { text: ': If \'auto\' appears, the document will be automatically numbered.' })
+    li1.createEl('b', { text: 'First level to number' })
+    li1.createEl('span', { text: ': If \'first-level 2\' appears, the numbering will start at the second level' })
 
     const li2 = ul.createEl('li', { })
     li2.createEl('b', { text: 'Maximum level to number' })
@@ -101,6 +105,18 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
         .setTooltip('Skip top heading level')
         .onChange(async (value) => {
           this.plugin.settings.skipTopLevel = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('First heading level')
+      .setDesc('First heading level to number.')
+      .addSlider(slider => slider
+        .setLimits(1, 6, 1)
+        .setValue(this.plugin.settings.firstLevel)
+        .setDynamicTooltip()
+        .onChange(async (value) => {
+          this.plugin.settings.firstLevel = value
           await this.plugin.saveSettings()
         }))
 
@@ -204,6 +220,7 @@ export default class NumberHeadingsPlugin extends Plugin {
               See settings panel to change how headings are numbered, or use front matter
               (see settings panel).`,
             preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
+  First heading level: ${settings.firstLevel}
   Maximum heading level: ${settings.maxLevel}
   Style for level 1 headings: ${settings.styleLevel1}
   Style for lower level headings (below level 1): ${settings.styleLevelOther}
