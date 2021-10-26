@@ -2,7 +2,7 @@ import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { getViewInfo, isViewActive } from './activeViewHelpers'
 import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 import { NumberingDoneConfig, showNumberingDoneMessage } from './messages'
-import { removeNumberHeadings, replaceNumberHeadings } from './numbering'
+import { removeHeadingNumbering, updateHeadingNumbering, updateTableOfContents } from './numbering'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
@@ -32,37 +32,45 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     - Example Alias
     tags:
     - example-tag
-    number headings: max 6, 1.1, auto
+    number headings: first-level 1, max 6, 1.1, auto, contents ^toc
     ---`
     })
 
     containerEl.createEl('div', {
       text: `
-      The 'number headings' front matter key is used to store numbering settings specific to the file. There are three possible options
+      The 'number headings' front matter key is used to store numbering settings specific to the file. There are four possible options
       in the value to the right of the colon, separated by commas.
     `
     })
 
     const ul = containerEl.createEl('ul', {})
 
+    const li0 = ul.createEl('li', { })
+    li0.createEl('b', { text: 'Automatic numbering' })
+    li0.createEl('span', { text: ': If \'auto\' appears, the document will be automatically numbered.' })
+
     const li1 = ul.createEl('li', { })
-    li1.createEl('b', { text: 'Automatic numbering' })
-    li1.createEl('span', { text: ': If \'auto\' appears, the document will be automatically numbered.' })
+    li1.createEl('b', { text: 'First level to number' })
+    li1.createEl('span', { text: ': If \'first-level 2\' appears, the numbering will start at the second level' })
 
     const li2 = ul.createEl('li', { })
     li2.createEl('b', { text: 'Maximum level to number' })
     li2.createEl('span', { text: ': If \'max 6\' appears, the headings above level 6 will be skipped.' })
 
     const li3 = ul.createEl('li', { })
-    li3.createEl('b', { text: 'Numbering style' })
-    li3.createEl('span', {
+    li3.createEl('b', { text: 'Table of contents anchor' })
+    li3.createEl('span', { text: ': If \'contents ^toc\' appears, the heading that ends with the anchor ^toc will have a table of contents inserted beneath it.' })
+
+    const li4 = ul.createEl('li', { })
+    li4.createEl('b', { text: 'Numbering style' })
+    li4.createEl('span', {
       text: `:
       A style text like '1.1', 'A.1', or '_.1.1' tells the plugin how to format the headings.
       If a style string ends with '.' (a dot), ':' (a colon), or '-' (a dash), the heading numbers will be separated from the heading title
       with that symbol.`
     })
 
-    const ul3 = li3.createEl('ul', {})
+    const ul3 = li4.createEl('ul', {})
     ul3.createEl('li', {
       text: `      
       For example, '1.1' means both top level and other headings will be numbered starting from '1'.
@@ -97,6 +105,18 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
         .setTooltip('Skip top heading level')
         .onChange(async (value) => {
           this.plugin.settings.skipTopLevel = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('First heading level')
+      .setDesc('First heading level to number.')
+      .addSlider(slider => slider
+        .setLimits(1, 6, 1)
+        .setValue(this.plugin.settings.firstLevel)
+        .setDynamicTooltip()
+        .onChange(async (value) => {
+          this.plugin.settings.firstLevel = value
           await this.plugin.saveSettings()
         }))
 
@@ -152,6 +172,16 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
           this.plugin.settings.separator = value
           await this.plugin.saveSettings()
         }))
+
+    new Setting(containerEl)
+      .setName('Table of Contents Anchor')
+      .setDesc('Anchor which labels the header where a table of contents should be inserted. The anchor should be added at the end of a header. For example, ^toc.')
+      .addText(text => text
+        .setValue(this.plugin.settings.contents)
+        .onChange(async (value) => {
+          this.plugin.settings.contents = value
+          await this.plugin.saveSettings()
+        }))
   }
 }
 
@@ -173,7 +203,12 @@ export default class NumberHeadingsPlugin extends Plugin {
         const viewInfo = getViewInfo(this.app)
         if (viewInfo) {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
-          replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
+          updateHeadingNumbering(viewInfo, settings)
+          setTimeout(() => {
+            // HACK: This must happen after a timeout so that there is time for the editor transaction to complete
+            const postNumberingViewInfo = getViewInfo(this.app)
+            updateTableOfContents(postNumberingViewInfo, settings)
+          }, 3000)
 
           const saveSettingsCallback = (shouldAddAutoFlag: boolean): void => {
             const tweakedSettings = { ...settings }
@@ -185,10 +220,12 @@ export default class NumberHeadingsPlugin extends Plugin {
               See settings panel to change how headings are numbered, or use front matter
               (see settings panel).`,
             preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
+  First heading level: ${settings.firstLevel}
   Maximum heading level: ${settings.maxLevel}
   Style for level 1 headings: ${settings.styleLevel1}
   Style for lower level headings (below level 1): ${settings.styleLevelOther}
-  Separator: ${settings.separator}`,
+  Separator: ${settings.separator}
+  Table of Contents Anchor: ${settings.contents}`,
             saveSettingsCallback
           }
           showNumberingDoneMessage(this.app, config)
@@ -205,9 +242,7 @@ export default class NumberHeadingsPlugin extends Plugin {
         if (checking) return isViewActive(this.app)
 
         const viewInfo = getViewInfo(this.app)
-        if (viewInfo) {
-          removeNumberHeadings(viewInfo.data, viewInfo.editor)
-        }
+        removeHeadingNumbering(viewInfo)
 
         return true
       }
@@ -237,12 +272,17 @@ export default class NumberHeadingsPlugin extends Plugin {
         const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
 
         if (settings.auto) {
-          replaceNumberHeadings(viewInfo.data, viewInfo.editor, settings)
+          updateHeadingNumbering(viewInfo, settings)
+          setTimeout(() => {
+            // HACK: This must happen after a timeout so that there is time for the editor transaction to complete
+            const postNumberingViewInfo = getViewInfo(this.app)
+            updateTableOfContents(postNumberingViewInfo, settings)
+          }, 3000)
           // eslint-disable-next-line no-console
-          console.log('Number Headings Plugin: automatically numbered document')
+          console.log('Number Headings Plugin: Automatically numbered document')
         }
       }
-    }, 5 * 1000))
+    }, 10 * 1000))
   }
 
   async loadSettings (): Promise<void> {

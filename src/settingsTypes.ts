@@ -1,19 +1,23 @@
 export interface NumberHeadingsPluginSettings {
   skipTopLevel: boolean,
+  firstLevel: number,
   maxLevel: number,
   styleLevel1: string,
   styleLevelOther: string,
   auto: boolean,
-  separator: string
+  separator: string,
+  contents: string
 }
 
 export const DEFAULT_SETTINGS: NumberHeadingsPluginSettings = {
   skipTopLevel: false,
+  firstLevel: 1,
   maxLevel: 6,
   styleLevel1: '1',
   styleLevelOther: '1',
   auto: false,
-  separator: ''
+  separator: '',
+  contents: ''
 }
 
 export function isValidLevelStyle (s: string): boolean {
@@ -26,12 +30,22 @@ export function isValidFlag (f: unknown): boolean {
   return false
 }
 
-export function isValidMaxLevel (x: unknown): boolean {
+export function isValidFirstOrMaxLevel (x: unknown): boolean {
   if (typeof x === 'number' && x >= 1 && x <= 6) return true
   return false
 }
 
 export function isValidSeparator (x: unknown): boolean {
   if (typeof x === 'string' && (x === '' || x === ':' || x === '.' || x === '-')) return true
+  return false
+}
+
+export function isValidContents (x: unknown): boolean {
+  if (typeof x === 'string' && (x === '' || x.startsWith('^'))) return true
+  return false
+}
+
+export function doesContentsHaveValue (x: string): boolean {
+  if (x.length > 2 && x.startsWith('^')) return true
   return false
 }
