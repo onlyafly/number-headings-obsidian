@@ -107,7 +107,7 @@ export const getFrontMatterSettingsOrAlternative = (
     const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
     const auto = isValidFlag(autoEntry) ? autoEntry : alternativeSettings.auto
 
-    return { ...DEFAULT_SETTINGS, skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
+    return { ...alternativeSettings, skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
   } else {
     return alternativeSettings
   }
