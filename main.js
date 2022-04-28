@@ -435,15 +435,22 @@ const updateHeadingNumbering = (viewInfo, settings) => {
         // Handle skipped & ignored levels
         if (settings.firstLevel > level) {
             // Leave these headings as they are (this allows people to have numbers at the start of ignored headings)
+            numberingStack.splice(0);
+            numberingStack.push(zerothNumberingTokenInStyle(settings.styleLevel1));
+            if (settings.firstLevel > 1) {
+                previousLevel = settings.firstLevel;
+            }
+            else if (settings.skipTopLevel) {
+                previousLevel = 2;
+            }
             continue;
         }
-        else if ((settings.skipTopLevel && level === 1) || (level > settings.maxLevel)) {
+        else if (level > settings.maxLevel) {
             // Remove any heading numbers in these two cases:
-            // 1. this is a top level and we are skipping top level headings
             // 2. this level is higher than the max level setting
             /* This would allow skipped headings to be stripped of their numbering, but this makes it difficult to truly skip a heading
             const prefixRange = getHeadingPrefixRange(editor, heading)
-      
+
             if (prefixRange) {
               const headingHashString = makeHeadingHashString(editor, heading)
               if (headingHashString === undefined) continue
@@ -652,27 +659,27 @@ class NumberHeadingsPluginSettingTab extends obsidian.PluginSettingTab {
         });
         const ul3 = li4.createEl('ul', {});
         ul3.createEl('li', {
-            text: `      
+            text: `
       For example, '1.1' means both top level and other headings will be numbered starting from '1'.
     `
         });
         ul3.createEl('li', {
-            text: `      
+            text: `
       For example, 'A.1' means top level headings will be numbered starting from 'A'.
     `
         });
         ul3.createEl('li', {
-            text: `      
+            text: `
       For example, '_.A.1' means top level headings will NOT be numbered, but the next levels will be numbered with letters and numbers.
     `
         });
         ul3.createEl('li', {
-            text: `      
+            text: `
       For example, '1.1:' means headings will look like '## 2.4: Example Heading'
     `
         });
         ul3.createEl('li', {
-            text: `      
+            text: `
       For example, 'A.1-' means headings will look like '## B.5- Example Heading'
     `
         });
@@ -784,7 +791,7 @@ class NumberHeadingsPlugin extends obsidian.Plugin {
                             saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, tweakedSettings);
                         };
                         const config = {
-                            message: `Successfully updated all heading numbers in the document, using the settings below. 
+                            message: `Successfully updated all heading numbers in the document, using the settings below.
               See settings panel to change how headings are numbered, or use front matter
               (see settings panel).`,
                             preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
