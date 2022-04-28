@@ -425,9 +425,6 @@ const updateHeadingNumbering = (viewInfo, settings) => {
     if (settings.firstLevel > 1) {
         previousLevel = settings.firstLevel;
     }
-    else if (settings.skipTopLevel) {
-        previousLevel = 2;
-    }
     const changes = [];
     for (const heading of headings) {
         // Update the numbering stack based on the level and previous level
@@ -440,9 +437,11 @@ const updateHeadingNumbering = (viewInfo, settings) => {
             if (settings.firstLevel > 1) {
                 previousLevel = settings.firstLevel;
             }
+            /*
             else if (settings.skipTopLevel) {
                 previousLevel = 2;
             }
+            */
             continue;
         }
         else if (level > settings.maxLevel) {
@@ -482,8 +481,8 @@ const updateHeadingNumbering = (viewInfo, settings) => {
         }
         // Set the previous level to this level for the next iteration
         previousLevel = level;
-        if (level > settings.maxLevel) {
-            // If we are above the max level, just don't number it
+        if (settings.skipTopLevel && level === 1) {
+            //if the TopLevel is skipped, we number it but do not put the number in the title.
             continue;
         }
         // Find the range to replace, and then do it
