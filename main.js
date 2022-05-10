@@ -422,7 +422,7 @@ const updateHeadingNumbering = (viewInfo, settings) => {
     const editor = viewInfo.editor;
     const numberingStack = [zerothNumberingTokenInStyle(settings.styleLevel1)];
     //using previousLevel to record the latest **generated** heading level, it is accompanied with the numberingStack's push operation
-    let previousLevel = 0;
+    let previousLevel = 0; //previousLevel is 0 means the numberingStack is reset
     const changes = [];
     for (const heading of headings) {
         // Update the numbering stack based on the level and previous level
@@ -431,7 +431,6 @@ const updateHeadingNumbering = (viewInfo, settings) => {
         if (settings.firstLevel > level) {
             //(re)init the empty numberingStack, so that the numbering will be reset.
             numberingStack.splice(0);
-            numberingStack.push(zerothNumberingTokenInStyle(settings.styleLevel1));
             previousLevel = 0;
             continue;
         }
@@ -466,23 +465,18 @@ const updateHeadingNumbering = (viewInfo, settings) => {
             }
         }
         else if (level > previousLevel) {
-          /*
-          todo: if Math.max() is available, the following code block can be replaced by:
-          for (let i = Math.max(settings.firstLevel,previousLevel); i < level; i++) {
-              numberingStack.push(firstNumberingTokenInStyle(settings.styleLevelOther));
-          }
-          */
           if (previousLevel == 0)
           {
-            for (let i = settings.firstLevel; i < level; i++) {
+            // in case the numberingStack is empty(reset)
+            for (let i = settings.firstLevel; i <= level; i++) {
                 numberingStack.push(firstNumberingTokenInStyle(settings.styleLevelOther));
             }
           }else{
+            // in case the numberingStack is not empty
             for (let i = previousLevel; i < level; i++) {
                 numberingStack.push(firstNumberingTokenInStyle(settings.styleLevelOther));
             }
           }
-
         }
         // Set the previous level to this level for the next iteration
         previousLevel = level;
@@ -490,7 +484,7 @@ const updateHeadingNumbering = (viewInfo, settings) => {
             //if the TopLevel is skipped, we number it but do not put the number in the title.
             continue;
         }
-        
+
         // Find the range to replace, and then do it
         const prefixRange = getHeadingPrefixRange(editor, heading);
         if (prefixRange === undefined)
