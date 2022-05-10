@@ -420,7 +420,7 @@ const updateHeadingNumbering = (viewInfo, settings) => {
         return;
     const headings = (_a = viewInfo.data.headings) !== null && _a !== void 0 ? _a : [];
     const editor = viewInfo.editor;
-    const numberingStack = [zerothNumberingTokenInStyle(settings.styleLevel1)];
+    const numberingStack = [];
     //using previousLevel to record the latest **generated** heading level, it is accompanied with the numberingStack's push operation
     let previousLevel = 0; //previousLevel is 0 means the numberingStack is reset
     const changes = [];
@@ -465,10 +465,15 @@ const updateHeadingNumbering = (viewInfo, settings) => {
             }
         }
         else if (level > previousLevel) {
-          if (previousLevel == 0)
+          if (previousLevel === 0)
           {
             // in case the numberingStack is empty(reset)
-            for (let i = settings.firstLevel; i <= level; i++) {
+            if (settings.firstLevel === 1){
+              numberingStack.push(firstNumberingTokenInStyle(settings.styleLevel1));
+            }else{
+              numberingStack.push(firstNumberingTokenInStyle(settings.styleLevelOther));
+            }
+            for (let i = settings.firstLevel; i < level; i++) {
                 numberingStack.push(firstNumberingTokenInStyle(settings.styleLevelOther));
             }
           }else{
