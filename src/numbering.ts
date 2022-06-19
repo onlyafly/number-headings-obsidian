@@ -110,12 +110,12 @@ function cleanHeadingTextForToc (htext: string): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings):string {
+function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings, initialHeadingLevel: number):string {
   const text = h.heading
   const cleanText = cleanHeadingTextForToc(text)
 
   let bulletIndent = ''
-  const startLevel = 1
+  const startLevel = initialHeadingLevel
   for (let i = startLevel; i < h.level; i++) {
     bulletIndent += '\t'
   }
@@ -240,6 +240,12 @@ export const updateTableOfContents = (
   let tocBuilder = '\n'
   const changes: EditorChange[] = []
 
+  // In case headings start above level 1, we don't want to indent the bullets too much
+  let initialHeadingLevel = 1
+  if (headings.length > 0) {
+    initialHeadingLevel = headings[0].level
+  }
+
   for (const heading of headings) {
     // ORDERING: Important to find the TOC heading before skipping skipped headings, since that is for numbering
 
@@ -254,7 +260,7 @@ export const updateTableOfContents = (
     }
     */
 
-    const tocEntry = createTocEntry(heading, settings)
+    const tocEntry = createTocEntry(heading, settings, initialHeadingLevel)
     tocBuilder += tocEntry + '\n'
   }
 
