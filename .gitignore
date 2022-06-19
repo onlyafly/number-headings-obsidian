@@ -11,3 +11,6 @@ package-lock.json
 
 # obsidian
 data.json
+
+# VSCode
+.vscode/*.log

@@ -148,7 +148,7 @@ export const updateHeadingNumbering = (
 
   let previousLevel = 1
 
-  const numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
+  let numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
 
   if (settings.firstLevel > 1) {
     previousLevel = settings.firstLevel
@@ -163,25 +163,19 @@ export const updateHeadingNumbering = (
 
     const level = heading.level
 
-    // Handle skipped & ignored levels
-    if (settings.firstLevel > level) {
-      // Leave these headings as they are (this allows people to have numbers at the start of ignored headings)
-      continue
-    } else if ((settings.skipTopLevel && level === 1) || (level > settings.maxLevel)) {
-      // Remove any heading numbers in these two cases:
-      // 1. this is a top level and we are skipping top level headings
-      // 2. this level is higher than the max level setting
+    // Handle skipped & ignored levels.
+    if ((settings.firstLevel > level) || (settings.skipTopLevel && level === 1)) {
+      // Resets the numbering when a level is skipped.
+      // Note: This leaves headings as they are, allowing people to have numbers at the start of
+      // ignored headings.
 
-      /* This would allow skipped headings to be stripped of their numbering, but this makes it difficult to truly skip a heading
-      const prefixRange = getHeadingPrefixRange(editor, heading)
+      numberingStack = [zerothNumberingTokenInStyle(settings.styleLevel1)]
 
-      if (prefixRange) {
-        const headingHashString = makeHeadingHashString(editor, heading)
-        if (headingHashString === undefined) continue
-        replaceRangeSafely(editor, changes, prefixRange, headingHashString + ' ')
+      if (settings.firstLevel > 1) {
+        previousLevel = settings.firstLevel
+      } else if (settings.skipTopLevel) {
+        previousLevel = 2
       }
-      */
-
       continue
     }
 

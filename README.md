@@ -30,6 +30,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.9.0 (June 19, 2022)
+
+* TBD
+
 ### 1.8.1 (December 15, 2021)
 
 * Fixed bug where in some situations settings were not transferred to the front matter. See <https://github.com/onlyafly/number-headings-obsidian/issues/19>
