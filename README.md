@@ -32,7 +32,7 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ### 1.9.0 (June 19, 2022)
 
-* TBD
+* Fixed several bugs. See <https://github.com/onlyafly/number-headings-obsidian/issues/29>, <https://github.com/onlyafly/number-headings-obsidian/issues/23>, and <https://github.com/onlyafly/number-headings-obsidian/issues/13>.
 
 ### 1.8.1 (December 15, 2021)
 
