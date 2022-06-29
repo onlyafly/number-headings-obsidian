@@ -1,4 +1,7 @@
 import { App, Modal } from 'obsidian'
+import { ViewInfo } from './activeViewHelpers'
+import { saveSettingsToFrontMatter } from './frontMatter'
+import { NumberHeadingsPluginSettings } from './settingsTypes'
 
 export interface NumberingDoneConfig {
   message: string
@@ -56,7 +59,26 @@ class NumberingDoneModal extends Modal {
   }
 }
 
-export function showNumberingDoneMessage (app: App, config: NumberingDoneConfig): void {
+export function showNumberingDoneMessage (app: App, settings: NumberHeadingsPluginSettings, viewInfo: ViewInfo): void {
+  const saveSettingsCallback = (shouldAddAutoFlag: boolean): void => {
+    const tweakedSettings = { ...settings }
+    if (shouldAddAutoFlag) tweakedSettings.auto = true
+    saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, tweakedSettings)
+  }
+  const config: NumberingDoneConfig = {
+    message: `Successfully updated all heading numbers in the document, using the settings below. 
+      See settings panel to change how headings are numbered, or use front matter
+      (see settings panel).`,
+    preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
+First heading level: ${settings.firstLevel}
+Maximum heading level: ${settings.maxLevel}
+Style for level 1 headings: ${settings.styleLevel1}
+Style for lower level headings (below level 1): ${settings.styleLevelOther}
+Separator: ${settings.separator}
+Table of Contents Anchor: ${settings.contents}`,
+    saveSettingsCallback
+  }
+
   const leaf = app.workspace.activeLeaf
   if (leaf) {
     new NumberingDoneModal(app, config).open()

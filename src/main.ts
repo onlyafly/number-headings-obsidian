@@ -1,7 +1,7 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian'
 import { getViewInfo, isViewActive } from './activeViewHelpers'
 import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
-import { NumberingDoneConfig, showNumberingDoneMessage } from './messages'
+import { showNumberingDoneMessage } from './messages'
 import { removeHeadingNumbering, updateHeadingNumbering, updateTableOfContents } from './numbering'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
 
@@ -195,6 +195,29 @@ export default class NumberHeadingsPlugin extends Plugin {
     await this.loadSettings()
 
     this.addCommand({
+      id: 'number-headings-with-options',
+      name: 'Number all headings in document (and show options)',
+      checkCallback: (checking: boolean) => {
+        if (checking) return isViewActive(this.app)
+
+        const viewInfo = getViewInfo(this.app)
+        if (viewInfo) {
+          const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
+          updateHeadingNumbering(viewInfo, settings)
+          setTimeout(() => {
+            // HACK: This must happen after a timeout so that there is time for the editor transaction to complete
+            const postNumberingViewInfo = getViewInfo(this.app)
+            updateTableOfContents(postNumberingViewInfo, settings)
+          }, 3000)
+
+          showNumberingDoneMessage(this.app, settings, viewInfo)
+        }
+
+        return false
+      }
+    })
+
+    this.addCommand({
       id: 'number-headings',
       name: 'Number all headings in document',
       checkCallback: (checking: boolean) => {
@@ -210,25 +233,9 @@ export default class NumberHeadingsPlugin extends Plugin {
             updateTableOfContents(postNumberingViewInfo, settings)
           }, 3000)
 
-          const saveSettingsCallback = (shouldAddAutoFlag: boolean): void => {
-            const tweakedSettings = { ...settings }
-            if (shouldAddAutoFlag) tweakedSettings.auto = true
-            saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, tweakedSettings)
-          }
-          const config: NumberingDoneConfig = {
-            message: `Successfully updated all heading numbers in the document, using the settings below. 
-              See settings panel to change how headings are numbered, or use front matter
-              (see settings panel).`,
-            preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
-  First heading level: ${settings.firstLevel}
-  Maximum heading level: ${settings.maxLevel}
-  Style for level 1 headings: ${settings.styleLevel1}
-  Style for lower level headings (below level 1): ${settings.styleLevelOther}
-  Separator: ${settings.separator}
-  Table of Contents Anchor: ${settings.contents}`,
-            saveSettingsCallback
-          }
-          showNumberingDoneMessage(this.app, config)
+          // NOTE: The line below is intentionally commented out, since this command is the same as
+          //       the above command, except for this line
+          // showNumberingDoneMessage(this.app, settings, viewInfo)
         }
 
         return false

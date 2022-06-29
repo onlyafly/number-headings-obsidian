@@ -18,17 +18,22 @@ To use this plugin:
 1. Open the command palette (type `CMD + P` on Mac or its equivalent on other platforms).
 2. Start typing the name of one of the actions. See below:
 
-| Action                                          | Hotkey          |
-| ----------------------------------------------- | --------------- |
-| Number all headings in document                 | None by default |
-| Remove numbering from all headings in document  | None by default |
-| Save settings to front matter                   | None by default |
+| Action                                             | Hotkey          |
+| -------------------------------------------------- | --------------- |
+| Number all headings in document (and show options) | None by default |
+| Number all headings in document                    | None by default |
+| Remove numbering from all headings in document     | None by default |
+| Save settings to front matter                      | None by default |
 
 You can also assign the commands to hotkeys for easy usage.
 
 See the settings page for the plugin for detailed instructions on the various settings you can use with the plugin.
 
 ## Version History
+
+### 1.10.0 (June 29, 2022)
+
+* Added new command "Number all headings in document (and show options)" which shows the options dialog after numbering. Changed the old command "Number all headings in document" to number without showing the dialog. See <https://github.com/onlyafly/number-headings-obsidian/issues/15>.
 
 ### 1.9.0 (June 19, 2022)
 
