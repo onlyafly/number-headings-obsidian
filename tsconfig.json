@@ -18,9 +18,10 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
-    "noPropertyAccessFromIndexSignature": true
+    "noPropertyAccessFromIndexSignature": true,
+    "esModuleInterop": true,
   },
   "include": [
     "**/*.ts"
-  ]
+  ],
 }

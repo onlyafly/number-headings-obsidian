@@ -1,6 +1,7 @@
 import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
 import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
+import { findRangeInHeaderString } from './textProcessing'
 
 const TOC_LIST_ITEM_BULLET = '-'
 
@@ -37,31 +38,10 @@ function makeNumberingString (numberingStack: NumberingToken[]): string {
   return numberingString
 }
 
-function getHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
-  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?[:.-]?( )+/g
-  const headingLineString = editor.getLine(heading.position.start.line)
-  if (!headingLineString) return undefined
-
-  const matches = headingLineString.match(regex)
-
-  if (matches && matches.length !== 1) {
-    // eslint-disable-next-line no-console
-    console.log("Unexpected heading format: '" + headingLineString + "'")
-    return undefined
-  }
-
-  const match = matches ? matches[0] : ''
-
-  const from = {
-    line: heading.position.start.line,
-    ch: 0
-  }
-  const to = {
-    line: heading.position.start.line,
-    ch: match.length
-  }
-
-  return { from, to }
+function findHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
+  const lineNumber = heading.position.start.line
+  const lineText = editor.getLine(lineNumber)
+  return findRangeInHeaderString(lineText, lineNumber)
 }
 
 type NumberingToken = string | number
@@ -208,12 +188,12 @@ export const updateHeadingNumbering = (
     }
 
     // Find the range to replace, and then do it
-    const prefixRange = getHeadingPrefixRange(editor, heading)
+    const prefixRange = findHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
-    replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
+    replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ') // FIXME
   }
 
   // Execute the transaction to make all the changes at once
@@ -330,7 +310,7 @@ export const removeHeadingNumbering = (
   const changes: EditorChange[] = []
 
   for (const heading of headings) {
-    const prefixRange = getHeadingPrefixRange(editor, heading)
+    const prefixRange = findHeadingPrefixRange(editor, heading)
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return

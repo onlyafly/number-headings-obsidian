@@ -13,3 +13,6 @@ local-deploy:
 	cp main.js ~/Dropbox/KPA\ Brain\ -\ Heading\ Tests/.obsidian/plugins/number-headings-obsidian/
 	cp manifest.json ~/Dropbox/KPA\ Brain\ -\ Heading\ Tests/.obsidian/plugins/number-headings-obsidian/
 	cp styles.css ~/Dropbox/KPA\ Brain\ -\ Heading\ Tests/.obsidian/plugins/number-headings-obsidian/
+
+test:
+	npm test

@@ -31,6 +31,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.10.1 (Dec 31, 2022)
+
+* Fixed bug where a separator like " -" would cause a loop during header updates.
+
 ### 1.10.0 (June 29, 2022)
 
 * Added new command "Number all headings in document (and show options)" which shows the options dialog after numbering. Changed the old command "Number all headings in document" to number without showing the dialog. See <https://github.com/onlyafly/number-headings-obsidian/issues/15>.
