@@ -9,7 +9,7 @@ export interface NumberHeadingsPluginSettings {
   contents: string
 }
 
-export const DEFAULT_SETTINGS: NumberHeadingsPluginSettings = {
+export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
   skipTopLevel: false,
   firstLevel: 1,
   maxLevel: 6,
@@ -36,7 +36,7 @@ export function isValidFirstOrMaxLevel (x: unknown): boolean {
 }
 
 export function isValidSeparator (x: unknown): boolean {
-  if (typeof x === 'string' && (x === '' || x === ':' || x === '.' || x === '-')) return true
+  if (typeof x === 'string' && (x === '' || x === ':' || x === '.' || x === '-' || x === '—' /* em-dash */ || x === ' :' || x === ' .' || x === ' -' || x === ' —' /* em-dash */)) return true
   return false
 }
 

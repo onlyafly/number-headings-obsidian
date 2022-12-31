@@ -33,7 +33,7 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ### 1.10.1 (Dec 31, 2022)
 
-* Fixed bug where a separator like " -" would cause a loop during header updates.
+* Fixed bug where a separator like " -" (space before a dash) would cause a loop during header updates. See <https://github.com/onlyafly/number-headings-obsidian/issues/36>.
 
 ### 1.10.0 (June 29, 2022)
 

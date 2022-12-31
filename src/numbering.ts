@@ -106,7 +106,7 @@ function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings
 }
 
 // Replace a range, but only if there is a change in text, to prevent poluting the undo stack
-function replaceRangeSafely (editor: Editor, changes: EditorChange[], range: EditorRange, text: string): void {
+function replaceRangeEconomically (editor: Editor, changes: EditorChange[], range: EditorRange, text: string): void {
   const previousText = editor.getRange(range.from, range.to)
 
   if (previousText !== text) {
@@ -193,7 +193,7 @@ export const updateHeadingNumbering = (
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
     const prefixString = makeNumberingString(numberingStack)
-    replaceRangeSafely(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ') // FIXME
+    replaceRangeEconomically(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
   }
 
   // Execute the transaction to make all the changes at once
@@ -287,7 +287,7 @@ export const updateTableOfContents = (
       ch: 0
     }
     const range = { from, to }
-    replaceRangeSafely(editor, changes, range, tocBuilder)
+    replaceRangeEconomically(editor, changes, range, tocBuilder)
   }
 
   // Execute the transaction to make all the changes at once
@@ -314,7 +314,7 @@ export const removeHeadingNumbering = (
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
-    replaceRangeSafely(editor, changes, prefixRange, headingHashString + ' ')
+    replaceRangeEconomically(editor, changes, prefixRange, headingHashString + ' ')
   }
 
   if (changes.length > 0) {
