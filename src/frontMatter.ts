@@ -1,5 +1,6 @@
 import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
 import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidLevelStyle, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
+import { updateSettingsFromFrontMatterFormatPart } from './textProcessing'
 
 const AUTO_PART_KEY = 'auto'
 const FIRST_LEVEL_PART_KEY = 'first-level'
@@ -11,62 +12,39 @@ function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsP
   if (entry) {
     const entryString = String(entry)
     const parts = entryString.split(',')
-    const settings: NumberHeadingsPluginSettings = { ...DEFAULT_SETTINGS }
+    let settings: NumberHeadingsPluginSettings = { ...DEFAULT_SETTINGS }
 
     for (const part of parts) {
-      const cleanPart = part.trim()
-      if (cleanPart.length === 0) continue
+      const trimmedPart = part.trim()
+      if (trimmedPart.length === 0) continue
 
-      if (cleanPart === AUTO_PART_KEY) {
+      if (trimmedPart === AUTO_PART_KEY) {
         // Parse auto numbering part
         settings.auto = true
-      } else if (cleanPart.startsWith(FIRST_LEVEL_PART_KEY)) {
+      } else if (trimmedPart.startsWith(FIRST_LEVEL_PART_KEY)) {
         // Parse first level part
-        const nstring = cleanPart.substring(FIRST_LEVEL_PART_KEY.length + 1)
+        const nstring = trimmedPart.substring(FIRST_LEVEL_PART_KEY.length + 1)
         const n = parseInt(nstring)
         if (isValidFirstOrMaxLevel(n)) {
           settings.firstLevel = n
         }
-      } else if (cleanPart.startsWith(MAX_LEVEL_PART_KEY)) {
+      } else if (trimmedPart.startsWith(MAX_LEVEL_PART_KEY)) {
         // Parse max level part
-        const nstring = cleanPart.substring(MAX_LEVEL_PART_KEY.length + 1)
+        const nstring = trimmedPart.substring(MAX_LEVEL_PART_KEY.length + 1)
         const n = parseInt(nstring)
         if (isValidFirstOrMaxLevel(n)) {
           settings.maxLevel = n
         }
-      } else if (cleanPart.startsWith(CONTENTS_PART_KEY)) {
-        if (cleanPart.length <= CONTENTS_PART_KEY.length + 1) continue
+      } else if (trimmedPart.startsWith(CONTENTS_PART_KEY)) {
+        if (trimmedPart.length <= CONTENTS_PART_KEY.length + 1) continue
         // Parse contents heading part
-        const tocHeading = cleanPart.substring(CONTENTS_PART_KEY.length + 1)
+        const tocHeading = trimmedPart.substring(CONTENTS_PART_KEY.length + 1)
         if (isValidContents(tocHeading)) {
           settings.contents = tocHeading
         }
       } else {
         // Parse formatting part
-        const lastChar = cleanPart[cleanPart.length - 1]
-        let remainingPart = cleanPart
-        if (isValidSeparator(lastChar)) {
-          settings.separator = lastChar
-          remainingPart = cleanPart.substring(0, cleanPart.length - 1)
-        }
-        const descriptors = remainingPart.split('.')
-        let firstNumberedDescriptor = 0
-        if (descriptors.length > 1 && descriptors[0] === '_') {
-          settings.skipTopLevel = true
-          firstNumberedDescriptor = 1
-        } else {
-          settings.skipTopLevel = false
-        }
-        if (descriptors.length - firstNumberedDescriptor >= 2) {
-          const styleLevel1 = descriptors[firstNumberedDescriptor]
-          if (isValidLevelStyle(styleLevel1)) {
-            settings.styleLevel1 = styleLevel1
-          }
-          const styleLevelOther = descriptors[firstNumberedDescriptor + 1]
-          if (isValidLevelStyle(styleLevelOther)) {
-            settings.styleLevelOther = styleLevelOther
-          }
-        }
+        settings = updateSettingsFromFrontMatterFormatPart(trimmedPart, settings)
       }
     }
 
