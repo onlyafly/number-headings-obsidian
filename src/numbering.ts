@@ -1,6 +1,6 @@
 import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
-import { firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, NumberingToken, startAtOrZerothInStyle, zerothNumberingTokenInStyle } from './numberingTokens'
+import { firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, NumberingToken, startAtOrZerothInStyle } from './numberingTokens'
 import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
 import { findRangeInHeaderString } from './textProcessing'
 
