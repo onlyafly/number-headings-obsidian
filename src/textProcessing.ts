@@ -4,7 +4,7 @@ import { isValidNumberingStyleString, isValidSeparator, NumberHeadingsPluginSett
 
 export function findRangeInHeaderString (lineText: string, lineNumber: number): EditorRange | undefined {
   // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
-  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )?[—:.-]?( )+/g
+  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.|[IVXLCDM]+\.)*([0-9]+|[A-Z]|[IVXLCDM]+)?( )?[—:.-]?( )+/g
 
   if (!lineText) return undefined
 

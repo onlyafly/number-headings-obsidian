@@ -18,6 +18,24 @@ describe('makeNumberingString', () => {
     const result = makeNumberingString(stack)
     expect(result).toBe(' A.B.1')
   })
+  test('roman unmixed', () => {
+    const stack: NumberingToken[] = [
+      { style: 'I', value: 'V' },
+      { style: 'I', value: 'X' },
+      { style: 'I', value: 'XXI' }
+    ]
+    const result = makeNumberingString(stack)
+    expect(result).toBe(' V.X.XXI')
+  })
+  test('roman mixed', () => {
+    const stack: NumberingToken[] = [
+      { style: 'I', value: 'V' },
+      { style: 'A', value: 'C' },
+      { style: '1', value: 123 }
+    ]
+    const result = makeNumberingString(stack)
+    expect(result).toBe(' V.C.123')
+  })
 })
 
 describe('startAtOrZerothInStyle', () => {
@@ -40,5 +58,13 @@ describe('startAtOrZerothInStyle', () => {
   test('mismatched', () => {
     const result = startAtOrZerothInStyle('3', 'A')
     expect(result).toStrictEqual({ style: 'A', value: 'Z' })
+  })
+  test('roman', () => {
+    const result = startAtOrZerothInStyle('V', 'I')
+    expect(result).toStrictEqual({ style: 'I', value: 'IV' })
+  })
+  test('roman from zero', () => {
+    const result = startAtOrZerothInStyle('I', 'I')
+    expect(result).toStrictEqual({ style: 'I', value: '0' })
   })
 })

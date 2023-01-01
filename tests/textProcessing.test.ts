@@ -23,6 +23,10 @@ describe('heading prefix range finding', () => {
   test('spaces before separator (bug 36)', () => {
     expect(findRangeInHeaderString('# 4 - Foo bar', 42)?.to.ch).toBe(6)
   })
+  test('roman', () => {
+    expect(findRangeInHeaderString('# I.V.XXI - Foo bar', 42)?.to.ch).toBe(12)
+    expect(findRangeInHeaderString('# XXI.67.C - Foo bar', 42)?.to.ch).toBe(13)
+  })
 })
 
 // Generate an clean settings object for testing
@@ -91,5 +95,19 @@ describe('updateSettingsFromFrontMatterFormatPart', () => {
     expect(s.separator).toBe(' —')
     expect(s.styleLevel1).toBe('A')
     expect(s.styleLevelOther).toBe('A')
+  })
+  test('unmixed roman, with space and em-dash as separator', () => {
+    const s = updateSettingsFromFrontMatterFormatPart('I.I —', createBasicSettings())
+    expect(s.skipTopLevel).toBe(false)
+    expect(s.separator).toBe(' —')
+    expect(s.styleLevel1).toBe('I')
+    expect(s.styleLevelOther).toBe('I')
+  })
+  test('mixed roman, with space and em-dash as separator', () => {
+    const s = updateSettingsFromFrontMatterFormatPart('A.I —', createBasicSettings())
+    expect(s.skipTopLevel).toBe(false)
+    expect(s.separator).toBe(' —')
+    expect(s.styleLevel1).toBe('A')
+    expect(s.styleLevelOther).toBe('I')
   })
 })
