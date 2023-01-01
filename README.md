@@ -31,6 +31,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.12.0 (Jan 1, 2023)
+
+* Added support for Roman numerals as numbers. See <https://github.com/onlyafly/number-headings-obsidian/issues/34>.
+
 ### 1.11.0 (Jan 1, 2023)
 
 * Added the 'start-at' setting to allow numbering to start at a number other than 1. See <https://github.com/onlyafly/number-headings-obsidian/issues/33>.

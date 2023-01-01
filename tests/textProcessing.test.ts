@@ -1,9 +1,11 @@
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from '../src/settingsTypes'
-import { findRangeInHeaderString, updateSettingsFromFrontMatterFormatPart } from '../src/textProcessing'
+import { findRangeInHeaderString, SupportFlags, updateSettingsFromFrontMatterFormatPart } from '../src/textProcessing'
+
+const defaultSupportFlags: SupportFlags = { alphabet: true, roman: true }
 
 describe('heading prefix range finding', () => {
   test('basic', () => {
-    const range = findRangeInHeaderString('# 4. Foo bar', 42)
+    const range = findRangeInHeaderString('# 4. Foo bar', 42, defaultSupportFlags)
     expect(range).toBeDefined()
     expect(range?.from.line).toBe(42)
     expect(range?.to.line).toBe(42)
@@ -11,21 +13,28 @@ describe('heading prefix range finding', () => {
     expect(range?.to.ch).toBe(5)
   })
   test('various numbering forms', () => {
-    expect(findRangeInHeaderString('# 4- Foo bar', 42)?.to.ch).toBe(5)
-    expect(findRangeInHeaderString('###### Z.1.1.1.1 Foo', 42)?.to.ch).toBe(17)
-    expect(findRangeInHeaderString('### 1.1- Test b1', 42)?.to.ch).toBe(9)
-    expect(findRangeInHeaderString('### Z.2 Broken 3', 42)?.to.ch).toBe(8)
-    expect(findRangeInHeaderString('##### Z.1.1.2 Broken 5', 42)?.to.ch).toBe(14)
-    expect(findRangeInHeaderString('## 0.2.1 Broken 3a', 42)?.to.ch).toBe(9)
-    expect(findRangeInHeaderString('#### D.A.A. John Helmer', 42)?.to.ch).toBe(12)
-    expect(findRangeInHeaderString('#### 4.1.1: John Helmer', 42)?.to.ch).toBe(12)
+    expect(findRangeInHeaderString('# 4- Foo bar', 42, defaultSupportFlags)?.to.ch).toBe(5)
+    expect(findRangeInHeaderString('###### Z.1.1.1.1 Foo', 42, defaultSupportFlags)?.to.ch).toBe(17)
+    expect(findRangeInHeaderString('### 1.1- Test b1', 42, defaultSupportFlags)?.to.ch).toBe(9)
+    expect(findRangeInHeaderString('### Z.2 Broken 3', 42, defaultSupportFlags)?.to.ch).toBe(8)
+    expect(findRangeInHeaderString('##### Z.1.1.2 Broken 5', 42, defaultSupportFlags)?.to.ch).toBe(14)
+    expect(findRangeInHeaderString('## 0.2.1 Broken 3a', 42, defaultSupportFlags)?.to.ch).toBe(9)
+    expect(findRangeInHeaderString('#### D.A.A. John Helmer', 42, defaultSupportFlags)?.to.ch).toBe(12)
+    expect(findRangeInHeaderString('#### 4.1.1: John Helmer', 42, defaultSupportFlags)?.to.ch).toBe(12)
   })
   test('spaces before separator (bug 36)', () => {
-    expect(findRangeInHeaderString('# 4 - Foo bar', 42)?.to.ch).toBe(6)
+    expect(findRangeInHeaderString('# 4 - Foo bar', 42, defaultSupportFlags)?.to.ch).toBe(6)
   })
   test('roman', () => {
-    expect(findRangeInHeaderString('# I.V.XXI - Foo bar', 42)?.to.ch).toBe(12)
-    expect(findRangeInHeaderString('# XXI.67.C - Foo bar', 42)?.to.ch).toBe(13)
+    expect(findRangeInHeaderString('# I.V.XXI - Foo bar', 42, defaultSupportFlags)?.to.ch).toBe(12)
+    expect(findRangeInHeaderString('# XXI.67.C - Foo bar', 42, defaultSupportFlags)?.to.ch).toBe(13)
+  })
+  test('do not support roman', () => {
+    expect(findRangeInHeaderString('# I am the very model', 42, { roman: false, alphabet: true })?.to.ch).toBe(4)
+    expect(findRangeInHeaderString('# I am the very model', 42, { roman: false, alphabet: false })?.to.ch).toBe(2)
+    expect(findRangeInHeaderString('# I am the very model', 42, { roman: true, alphabet: true })?.to.ch).toBe(4)
+    expect(findRangeInHeaderString('# XV am the very model', 42, { roman: true, alphabet: true })?.to.ch).toBe(5)
+    expect(findRangeInHeaderString('# XV am the very model', 42, { roman: false, alphabet: true })?.to.ch).toBe(2)
   })
 })
 

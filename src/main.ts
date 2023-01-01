@@ -101,6 +101,11 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
       For example, 'A.1-' means headings will look like '## B.5- Example Heading'
     `
     })
+    ul3.createEl('li', {
+      text: `      
+      For example, 'I.A —' means headings will look like '## IV.A — Example Heading' (with Roman numerals)
+    `
+    })
 
     new Setting(containerEl)
       .setName('Skip top heading level')
@@ -149,7 +154,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Style for level 1 headings')
-      .setDesc('Defines the numbering style for level one headings. Valid values are 1 (for numbers) or A (for capital letters).')
+      .setDesc('Defines the numbering style for level one headings. Valid values are 1 (for numbers) or A (for capital letters) or I (for Roman numerals).')
       .addText(text => text
         .setValue(this.plugin.settings.styleLevel1)
         .onChange(async (value) => {
@@ -159,7 +164,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Style for lower level headings (below level 1)')
-      .setDesc('Defines the numbering style for headings below level one. Valid values are 1 (for numbers) or A (for capital letters).')
+      .setDesc('Defines the numbering style for headings below level one. Valid values are 1 (for numbers) or A (for capital letters) or I (for Roman numerals).')
       .addText(text => text
         .setValue(this.plugin.settings.styleLevelOther)
         .onChange(async (value) => {

@@ -2,7 +2,7 @@ import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
 import { firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, NumberingToken, startAtOrZerothInStyle } from './numberingTokens'
 import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
-import { findRangeInHeaderString } from './textProcessing'
+import { createSupportFlagsFromSettings, findRangeInHeaderString, SupportFlags } from './textProcessing'
 
 const TOC_LIST_ITEM_BULLET = '-'
 
@@ -24,10 +24,10 @@ function makeHeadingHashString (editor: Editor, heading: HeadingCache): string |
   return match.trimLeft()
 }
 
-function findHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
+function findHeadingPrefixRange (editor: Editor, heading: HeadingCache, flags: SupportFlags): EditorRange | undefined {
   const lineNumber = heading.position.start.line
   const lineText = editor.getLine(lineNumber)
-  return findRangeInHeaderString(lineText, lineNumber)
+  return findRangeInHeaderString(lineText, lineNumber, flags)
 }
 
 function cleanHeadingTextForToc (htext: string): string {
@@ -76,6 +76,7 @@ export const updateHeadingNumbering = (
   if (!viewInfo) return
   const headings = viewInfo.data.headings ?? []
   const editor = viewInfo.editor
+  const supportFlags = createSupportFlagsFromSettings(settings.styleLevel1, settings.styleLevelOther)
 
   let previousLevel = 1
 
@@ -139,7 +140,7 @@ export const updateHeadingNumbering = (
     }
 
     // Find the range to replace, and then do it
-    const prefixRange = findHeadingPrefixRange(editor, heading)
+    const prefixRange = findHeadingPrefixRange(editor, heading, supportFlags)
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
@@ -263,7 +264,7 @@ export const removeHeadingNumbering = (
   const changes: EditorChange[] = []
 
   for (const heading of headings) {
-    const prefixRange = findHeadingPrefixRange(editor, heading)
+    const prefixRange = findHeadingPrefixRange(editor, heading, { alphabet: true, roman: true })
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return

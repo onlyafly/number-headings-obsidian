@@ -2,9 +2,38 @@ import { EditorRange } from 'obsidian'
 import { NumberingStyle } from './numberingTokens'
 import { isValidNumberingStyleString, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
 
-export function findRangeInHeaderString (lineText: string, lineNumber: number): EditorRange | undefined {
-  // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
-  const regex = /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.|[IVXLCDM]+\.)*([0-9]+|[A-Z]|[IVXLCDM]+)?( )?[—:.-]?( )+/g
+export type SupportFlags = {
+  alphabet: boolean,
+  roman: boolean,
+}
+
+export function createSupportFlagsFromSettings (styleLevel1: string, styleLevelOther: string): SupportFlags {
+  return {
+    alphabet: styleLevel1 === 'A' || styleLevelOther === 'A',
+    roman: styleLevel1 === 'I' || styleLevelOther === 'I'
+  }
+}
+
+function getRegexForHeaderString (flags: SupportFlags): RegExp {
+  if (flags.alphabet && flags.roman) {
+    // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
+    return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.|[IVXLCDM]+\.)*([0-9]+|[A-Z]|[IVXLCDM]+)?( )?[—:.-]?( )+/g
+  } else if (!flags.alphabet && flags.roman) {
+    // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
+    return /^\s{0,4}#+( )?([0-9]+\.|[IVXLCDM]+\.)*([0-9]+|[IVXLCDM]+)?( )?[—:.-]?( )+/g
+  } else if (flags.alphabet && !flags.roman) {
+    // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
+    return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )?[—:.-]?( )+/g
+  } else if (!flags.alphabet && !flags.roman) {
+    // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
+    return /^\s{0,4}#+( )?([0-9]+\.)*([0-9]+)?( )?[—:.-]?( )+/g
+  }
+
+  throw new Error('Unexpected combination of support flags')
+}
+
+export function findRangeInHeaderString (lineText: string, lineNumber: number, flags: SupportFlags): EditorRange | undefined {
+  const regex = getRegexForHeaderString(flags)
 
   if (!lineText) return undefined
 
