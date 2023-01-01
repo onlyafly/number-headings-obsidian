@@ -1,5 +1,6 @@
 import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
+import { firstNumberingTokenInStyle, nextNumberingToken, NumberingToken, zerothNumberingTokenInStyle } from './numberingTools'
 import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
 import { findRangeInHeaderString } from './textProcessing'
 
@@ -42,41 +43,6 @@ function findHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorR
   const lineNumber = heading.position.start.line
   const lineText = editor.getLine(lineNumber)
   return findRangeInHeaderString(lineText, lineNumber)
-}
-
-type NumberingToken = string | number
-
-function zerothNumberingTokenInStyle (style: string): NumberingToken {
-  if (style === '1') {
-    return 0
-  } else if (style === 'A') {
-    return 'Z'
-  }
-
-  return 0
-}
-
-function firstNumberingTokenInStyle (style: string): NumberingToken {
-  if (style === '1') {
-    return 1
-  } else if (style === 'A') {
-    return 'A'
-  }
-
-  return 1
-}
-
-function nextNumberingToken (t: NumberingToken): NumberingToken {
-  if (typeof t === 'number') {
-    return t + 1
-  }
-
-  if (typeof t === 'string') {
-    if (t === 'Z') return 'A'
-    else return String.fromCharCode(t.charCodeAt(0) + 1)
-  }
-
-  return 1
 }
 
 function cleanHeadingTextForToc (htext: string): string {

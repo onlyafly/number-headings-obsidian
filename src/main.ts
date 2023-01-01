@@ -3,6 +3,7 @@ import { getViewInfo, isViewActive } from './activeViewHelpers'
 import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 import { showNumberingDoneMessage } from './messages'
 import { removeHeadingNumbering, updateHeadingNumbering, updateTableOfContents } from './numbering'
+import { NumberingStyle } from './numberingTools'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
@@ -138,7 +139,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
       .addText(text => text
         .setValue(this.plugin.settings.styleLevel1)
         .onChange(async (value) => {
-          this.plugin.settings.styleLevel1 = value
+          this.plugin.settings.styleLevel1 = value as NumberingStyle
           await this.plugin.saveSettings()
         }))
 
@@ -148,7 +149,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
       .addText(text => text
         .setValue(this.plugin.settings.styleLevelOther)
         .onChange(async (value) => {
-          this.plugin.settings.styleLevelOther = value
+          this.plugin.settings.styleLevelOther = value as NumberingStyle
           await this.plugin.saveSettings()
         }))
 

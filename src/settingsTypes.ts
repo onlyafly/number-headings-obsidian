@@ -1,9 +1,11 @@
+import { NumberingStyle } from './numberingTools'
+
 export interface NumberHeadingsPluginSettings {
   skipTopLevel: boolean,
   firstLevel: number,
   maxLevel: number,
-  styleLevel1: string,
-  styleLevelOther: string,
+  styleLevel1: NumberingStyle,
+  styleLevelOther: NumberingStyle,
   auto: boolean,
   separator: string,
   contents: string

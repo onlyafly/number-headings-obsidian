@@ -1,5 +1,6 @@
 import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
-import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidLevelStyle, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
+import { NumberingStyle } from './numberingTools'
+import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidLevelStyle, NumberHeadingsPluginSettings } from './settingsTypes'
 import { updateSettingsFromFrontMatterFormatPart } from './textProcessing'
 
 const AUTO_PART_KEY = 'auto'
@@ -74,13 +75,13 @@ export const getFrontMatterSettingsOrAlternative = (
       parseFrontMatterEntry(frontmatter, 'number-headings-style-level-1') ??
       parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1')
     )
-    const styleLevel1 = isValidLevelStyle(styleLevel1Entry) ? styleLevel1Entry : alternativeSettings.styleLevel1
+    const styleLevel1: NumberingStyle = isValidLevelStyle(styleLevel1Entry) ? styleLevel1Entry as NumberingStyle : alternativeSettings.styleLevel1
 
     const styleLevelOtherEntry = String(
       parseFrontMatterEntry(frontmatter, 'number-headings-style-level-other') ??
       parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other')
     )
-    const styleLevelOther = isValidLevelStyle(styleLevelOtherEntry) ? styleLevelOtherEntry : alternativeSettings.styleLevelOther
+    const styleLevelOther: NumberingStyle = isValidLevelStyle(styleLevelOtherEntry) ? styleLevelOtherEntry as NumberingStyle : alternativeSettings.styleLevelOther
 
     const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
     const auto = isValidFlag(autoEntry) ? autoEntry : alternativeSettings.auto

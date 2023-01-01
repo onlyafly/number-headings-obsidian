@@ -29,8 +29,8 @@ describe('heading prefix range finding', () => {
 function createBasicSettings (): NumberHeadingsPluginSettings {
   const s = { ...DEFAULT_SETTINGS }
   s.skipTopLevel = true
-  s.styleLevel1 = 'foo'
-  s.styleLevelOther = 'foo'
+  s.styleLevel1 = 'A'
+  s.styleLevelOther = 'A'
   s.separator = 'foo'
   return s
 }
@@ -67,8 +67,8 @@ describe('updateSettingsFromFrontMatterFormatPart', () => {
   test('with colon as separator, skip top level, and only one numbered descriptor', () => {
     const s = updateSettingsFromFrontMatterFormatPart('_.1:', createBasicSettings())
     expect(s.skipTopLevel).toBe(true)
-    expect(s.styleLevel1).toBe('foo') // Pass through, since number format is invalid
-    expect(s.styleLevelOther).toBe('foo') // Pass through, since number format is invalid
+    expect(s.styleLevel1).toBe('A') // Pass through, since number format is invalid
+    expect(s.styleLevelOther).toBe('A') // Pass through, since number format is invalid
     expect(s.separator).toBe(':')
   })
   test('numbers, with space and colon as separator', () => {
