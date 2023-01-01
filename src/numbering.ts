@@ -251,12 +251,14 @@ export const updateTableOfContents = (
       ch: 0
     }
 
+    // Find the end of the TOC section
     const startingLine = tocHeading.position.start.line + 1
-    let endingLine = 0
+    let endingLine = startingLine
     let foundList = false
-    for (endingLine = startingLine; ; endingLine++) {
+    const lastLineInEditor = editor.lastLine()
+    for (; ; endingLine++) {
       const line = editor.getLine(endingLine)
-      if (line === undefined) {
+      if (line === undefined || endingLine > lastLineInEditor) {
         // Reached end of file, insert at the start of the TOC section
         endingLine = startingLine
         break

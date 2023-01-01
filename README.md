@@ -31,6 +31,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.11.0 (Jan 1, 2023)
+
+* Fixed bug where table of contents would cause Obsidian to freeze if there is no other headings. See <https://github.com/onlyafly/number-headings-obsidian/issues/37>.
+
 ### 1.10.1 (Dec 31, 2022)
 
 * Fixed bug where a separator like " -" (space before a dash) would cause a loop during header updates. See <https://github.com/onlyafly/number-headings-obsidian/issues/36>.
