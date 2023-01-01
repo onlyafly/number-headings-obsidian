@@ -71,6 +71,7 @@ export function showNumberingDoneMessage (app: App, settings: NumberHeadingsPlug
       (see settings panel).`,
     preformattedMessage: `  Skip top heading level: ${settings.skipTopLevel}
 First heading level: ${settings.firstLevel}
+Start numbering first heading at: ${settings.startAt}
 Maximum heading level: ${settings.maxLevel}
 Style for level 1 headings: ${settings.styleLevel1}
 Style for lower level headings (below level 1): ${settings.styleLevelOther}

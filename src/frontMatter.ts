@@ -1,12 +1,13 @@
 import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
-import { NumberingStyle } from './numberingTools'
-import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidLevelStyle, NumberHeadingsPluginSettings } from './settingsTypes'
+import { NumberingStyle } from './numberingTokens'
+import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidNumberingStyleString, isValidNumberingValueString, NumberHeadingsPluginSettings } from './settingsTypes'
 import { updateSettingsFromFrontMatterFormatPart } from './textProcessing'
 
 const AUTO_PART_KEY = 'auto'
 const FIRST_LEVEL_PART_KEY = 'first-level'
 const MAX_LEVEL_PART_KEY = 'max'
 const CONTENTS_PART_KEY = 'contents'
+const START_AT_PART_KEY = 'start-at'
 
 function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
@@ -35,6 +36,12 @@ function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsP
         const n = parseInt(nstring)
         if (isValidFirstOrMaxLevel(n)) {
           settings.maxLevel = n
+        }
+      } else if (trimmedPart.startsWith(START_AT_PART_KEY)) {
+        // Parse "start at" part
+        const value = trimmedPart.substring(START_AT_PART_KEY.length + 1)
+        if (isValidNumberingValueString(value)) {
+          settings.startAt = value
         }
       } else if (trimmedPart.startsWith(CONTENTS_PART_KEY)) {
         if (trimmedPart.length <= CONTENTS_PART_KEY.length + 1) continue
@@ -75,13 +82,13 @@ export const getFrontMatterSettingsOrAlternative = (
       parseFrontMatterEntry(frontmatter, 'number-headings-style-level-1') ??
       parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-1')
     )
-    const styleLevel1: NumberingStyle = isValidLevelStyle(styleLevel1Entry) ? styleLevel1Entry as NumberingStyle : alternativeSettings.styleLevel1
+    const styleLevel1: NumberingStyle = isValidNumberingStyleString(styleLevel1Entry) ? styleLevel1Entry as NumberingStyle : alternativeSettings.styleLevel1
 
     const styleLevelOtherEntry = String(
       parseFrontMatterEntry(frontmatter, 'number-headings-style-level-other') ??
       parseFrontMatterEntry(frontmatter, 'header-numbering-style-level-other')
     )
-    const styleLevelOther: NumberingStyle = isValidLevelStyle(styleLevelOtherEntry) ? styleLevelOtherEntry as NumberingStyle : alternativeSettings.styleLevelOther
+    const styleLevelOther: NumberingStyle = isValidNumberingStyleString(styleLevelOtherEntry) ? styleLevelOtherEntry as NumberingStyle : alternativeSettings.styleLevelOther
 
     const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
     const auto = isValidFlag(autoEntry) ? autoEntry : alternativeSettings.auto
@@ -99,7 +106,8 @@ function settingsToCompactFrontMatterValue (settings: NumberHeadingsPluginSettin
   const contentsPart = settings.contents && settings.contents.length > 0 ? `contents ${settings.contents}, ` : ''
   const skipTopLevelString = settings.skipTopLevel ? '_.' : ''
   const stylePart = `${skipTopLevelString}${settings.styleLevel1}.${settings.styleLevelOther}${settings.separator}`
-  return autoPart + firstLevelPart + maxPart + contentsPart + stylePart
+  const startAtPart = settings.startAt !== '' ? `start-at ${settings.startAt}, ` : ''
+  return autoPart + firstLevelPart + maxPart + contentsPart + startAtPart + stylePart
 }
 
 function findLineWhichStartsWith (editor: Editor, search: string, afterLine: number): number | undefined {

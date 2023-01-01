@@ -3,7 +3,7 @@ import { getViewInfo, isViewActive } from './activeViewHelpers'
 import { getFrontMatterSettingsOrAlternative, saveSettingsToFrontMatter } from './frontMatter'
 import { showNumberingDoneMessage } from './messages'
 import { removeHeadingNumbering, updateHeadingNumbering, updateTableOfContents } from './numbering'
-import { NumberingStyle } from './numberingTools'
+import { NumberingStyle } from './numberingTokens'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
 
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
@@ -33,7 +33,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     - Example Alias
     tags:
     - example-tag
-    number headings: first-level 1, max 6, 1.1, auto, contents ^toc
+    number headings: first-level 1, start-at 2, max 6, 1.1, auto, contents ^toc
     ---`
     })
 
@@ -55,23 +55,27 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     li1.createEl('span', { text: ': If \'first-level 2\' appears, the numbering will start at the second level' })
 
     const li2 = ul.createEl('li', { })
-    li2.createEl('b', { text: 'Maximum level to number' })
-    li2.createEl('span', { text: ': If \'max 6\' appears, the headings above level 6 will be skipped.' })
+    li2.createEl('b', { text: 'Start numbering first heading at' })
+    li2.createEl('span', { text: ': If \'start-at C\' appears, the numbering of the first level will start at C, instead of A' })
 
     const li3 = ul.createEl('li', { })
-    li3.createEl('b', { text: 'Table of contents anchor' })
-    li3.createEl('span', { text: ': If \'contents ^toc\' appears, the heading that ends with the anchor ^toc will have a table of contents inserted beneath it.' })
+    li3.createEl('b', { text: 'Maximum level to number' })
+    li3.createEl('span', { text: ': If \'max 6\' appears, the headings above level 6 will be skipped.' })
 
     const li4 = ul.createEl('li', { })
-    li4.createEl('b', { text: 'Numbering style' })
-    li4.createEl('span', {
+    li4.createEl('b', { text: 'Table of contents anchor' })
+    li4.createEl('span', { text: ': If \'contents ^toc\' appears, the heading that ends with the anchor ^toc will have a table of contents inserted beneath it.' })
+
+    const li5 = ul.createEl('li', { })
+    li5.createEl('b', { text: 'Numbering style' })
+    li5.createEl('span', {
       text: `:
       A style text like '1.1', 'A.1', or '_.1.1' tells the plugin how to format the headings.
       If a style string ends with '.' (a dot), ':' (a colon), '-' (a dash), or '—' (an emdash), the heading numbers will be separated from the heading title
       with that symbol.`
     })
 
-    const ul3 = li4.createEl('ul', {})
+    const ul3 = li5.createEl('ul', {})
     ul3.createEl('li', {
       text: `      
       For example, '1.1' means both top level and other headings will be numbered starting from '1'.
@@ -118,6 +122,16 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
         .setDynamicTooltip()
         .onChange(async (value) => {
           this.plugin.settings.firstLevel = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('Start numbering at')
+      .setDesc('Start numbering the first heading level from this value.')
+      .addText(text => text
+        .setValue(this.plugin.settings.startAt)
+        .onChange(async (value) => {
+          this.plugin.settings.startAt = value
           await this.plugin.saveSettings()
         }))
 

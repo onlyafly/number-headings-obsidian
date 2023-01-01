@@ -1,4 +1,4 @@
-import { NumberingStyle } from './numberingTools'
+import { isValidAlphabetNumberingValueString, isValidArabicNumberingValueString, NumberingStyle } from './numberingTokens'
 
 export interface NumberHeadingsPluginSettings {
   skipTopLevel: boolean,
@@ -8,7 +8,8 @@ export interface NumberHeadingsPluginSettings {
   styleLevelOther: NumberingStyle,
   auto: boolean,
   separator: string,
-  contents: string
+  contents: string,
+  startAt: string,
 }
 
 export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
@@ -19,11 +20,17 @@ export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
   styleLevelOther: '1',
   auto: false,
   separator: '',
-  contents: ''
+  contents: '',
+  startAt: ''
 }
 
-export function isValidLevelStyle (s: string): boolean {
+export function isValidNumberingStyleString (s: string): boolean {
   if (s === 'A' || s === '1') return true
+  return false
+}
+
+export function isValidNumberingValueString (s: string): boolean {
+  if (s === '' || isValidArabicNumberingValueString(s) || isValidAlphabetNumberingValueString(s)) return true
   return false
 }
 

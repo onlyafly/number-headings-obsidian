@@ -22,6 +22,7 @@
       ],
       "parser": "@typescript-eslint/parser",
       "rules": {
+        "@typescript-eslint/switch-exhaustiveness-check": "error",
         "@typescript-eslint/explicit-module-boundary-types": "error",
         "@typescript-eslint/explicit-function-return-type": "error",
         "@typescript-eslint/no-explicit-any": "error",

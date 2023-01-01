@@ -1,6 +1,6 @@
 import { EditorRange } from 'obsidian'
-import { NumberingStyle } from './numberingTools'
-import { isValidLevelStyle, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
+import { NumberingStyle } from './numberingTokens'
+import { isValidNumberingStyleString, isValidSeparator, NumberHeadingsPluginSettings } from './settingsTypes'
 
 export function findRangeInHeaderString (lineText: string, lineNumber: number): EditorRange | undefined {
   // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
@@ -62,11 +62,11 @@ export function updateSettingsFromFrontMatterFormatPart (part: string, settings:
 
   if (descriptors.length - firstNumberedDescriptor >= 2) {
     const styleLevel1 = descriptors[firstNumberedDescriptor]
-    if (isValidLevelStyle(styleLevel1)) {
+    if (isValidNumberingStyleString(styleLevel1)) {
       settings.styleLevel1 = styleLevel1 as NumberingStyle
     }
     const styleLevelOther = descriptors[firstNumberedDescriptor + 1]
-    if (isValidLevelStyle(styleLevelOther)) {
+    if (isValidNumberingStyleString(styleLevelOther)) {
       settings.styleLevelOther = styleLevelOther as NumberingStyle
     }
   }

@@ -33,6 +33,7 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ### 1.11.0 (Jan 1, 2023)
 
+* Added the 'start-at' setting to allow numbering to start at a number other than 1. See <https://github.com/onlyafly/number-headings-obsidian/issues/33>.
 * Fixed bug where table of contents would cause Obsidian to freeze if there is no other headings. See <https://github.com/onlyafly/number-headings-obsidian/issues/37>.
 
 ### 1.10.1 (Dec 31, 2022)

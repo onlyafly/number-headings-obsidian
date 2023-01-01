@@ -1,6 +1,6 @@
 import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
-import { firstNumberingTokenInStyle, nextNumberingToken, NumberingToken, zerothNumberingTokenInStyle } from './numberingTools'
+import { firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, NumberingToken, startAtOrZerothInStyle, zerothNumberingTokenInStyle } from './numberingTokens'
 import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
 import { findRangeInHeaderString } from './textProcessing'
 
@@ -22,21 +22,6 @@ function makeHeadingHashString (editor: Editor, heading: HeadingCache): string |
 
   const match = matches[0]
   return match.trimLeft()
-}
-
-function makeNumberingString (numberingStack: NumberingToken[]): string {
-  let numberingString = ''
-
-  for (let i = 0; i < numberingStack.length; i++) {
-    if (i === 0) {
-      numberingString += ' '
-    } else {
-      numberingString += '.'
-    }
-    numberingString += numberingStack[i].toString()
-  }
-
-  return numberingString
 }
 
 function findHeadingPrefixRange (editor: Editor, heading: HeadingCache): EditorRange | undefined {
@@ -94,7 +79,7 @@ export const updateHeadingNumbering = (
 
   let previousLevel = 1
 
-  let numberingStack: NumberingToken[] = [zerothNumberingTokenInStyle(settings.styleLevel1)]
+  let numberingStack: NumberingToken[] = [startAtOrZerothInStyle(settings.startAt, settings.styleLevel1)]
 
   if (settings.firstLevel > 1) {
     previousLevel = settings.firstLevel
@@ -115,7 +100,7 @@ export const updateHeadingNumbering = (
       // Note: This leaves headings as they are, allowing people to have numbers at the start of
       // ignored headings.
 
-      numberingStack = [zerothNumberingTokenInStyle(settings.styleLevel1)]
+      numberingStack = [startAtOrZerothInStyle(settings.startAt, settings.styleLevel1)]
 
       if (settings.firstLevel > 1) {
         previousLevel = settings.firstLevel
