@@ -45,8 +45,15 @@ export function isValidFirstOrMaxLevel (x: unknown): boolean {
 }
 
 export function isValidSeparator (x: unknown): boolean {
-  if (typeof x === 'string' && (x === '' || x === ':' || x === '.' || x === '-' || x === '—' /* em-dash */ || x === ' :' || x === ' .' || x === ' -' || x === ' —' /* em-dash */)) return true
-  return false
+  return typeof x === 'string' &&
+    (
+      x === '' ||
+      x === ':' || x === ' :' ||
+      x === '.' || x === ' .' ||
+      x === '-' || x === ' -' ||
+      x === '—' || x === ' —' || /* em-dash */
+      x === ')' || x === ' )'
+    )
 }
 
 export function isValidContents (x: unknown): boolean {

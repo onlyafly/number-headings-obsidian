@@ -10,12 +10,16 @@ describe('isValidSeparator', () => {
     expect(isValidSeparator('&')).toBe(false)
     expect(isValidSeparator('€')).toBe(false)
   })
-  test('with spaces', () => {
+  test('basic with spaces', () => {
     expect(isValidSeparator('')).toBe(true)
     expect(isValidSeparator(' .')).toBe(true)
     expect(isValidSeparator(' :')).toBe(true)
     expect(isValidSeparator(' -')).toBe(true) // en dash
     expect(isValidSeparator(' —')).toBe(true) // em dash
+  })
+  test('right parens', () => {
+    expect(isValidSeparator(')')).toBe(true)
+    expect(isValidSeparator(' )')).toBe(true)
   })
 })
 

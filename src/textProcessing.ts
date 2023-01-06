@@ -17,16 +17,16 @@ export function createSupportFlagsFromSettings (styleLevel1: string, styleLevelO
 function getRegexForHeaderString (flags: SupportFlags): RegExp {
   if (flags.alphabet && flags.roman) {
     // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
-    return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.|[IVXLCDM]+\.)*([0-9]+|[A-Z]|[IVXLCDM]+)?( )?[—:.-]?( )+/g
+    return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.|[IVXLCDM]+\.)*([0-9]+|[A-Z]|[IVXLCDM]+)?( )?[)—:.-]?( )+/g
   } else if (!flags.alphabet && flags.roman) {
     // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
-    return /^\s{0,4}#+( )?([0-9]+\.|[IVXLCDM]+\.)*([0-9]+|[IVXLCDM]+)?( )?[—:.-]?( )+/g
+    return /^\s{0,4}#+( )?([0-9]+\.|[IVXLCDM]+\.)*([0-9]+|[IVXLCDM]+)?( )?[)—:.-]?( )+/g
   } else if (flags.alphabet && !flags.roman) {
     // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
-    return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )?[—:.-]?( )+/g
+    return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.)*([0-9]+|[A-Z])?( )?[)—:.-]?( )+/g
   } else if (!flags.alphabet && !flags.roman) {
     // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
-    return /^\s{0,4}#+( )?([0-9]+\.)*([0-9]+)?( )?[—:.-]?( )+/g
+    return /^\s{0,4}#+( )?([0-9]+\.)*([0-9]+)?( )?[)—:.-]?( )+/g
   }
 
   throw new Error('Unexpected combination of support flags')

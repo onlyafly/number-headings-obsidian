@@ -36,6 +36,10 @@ describe('heading prefix range finding', () => {
     expect(findRangeInHeaderString('# XV am the very model', 42, { roman: true, alphabet: true })?.to.ch).toBe(5)
     expect(findRangeInHeaderString('# XV am the very model', 42, { roman: false, alphabet: true })?.to.ch).toBe(2)
   })
+  test('right parens as separator', () => {
+    expect(findRangeInHeaderString('# 4) Foo bar', 42, defaultSupportFlags)?.to.ch).toBe(5)
+    expect(findRangeInHeaderString('# 4 ) Foo bar', 42, defaultSupportFlags)?.to.ch).toBe(6)
+  })
 })
 
 // Generate an clean settings object for testing
@@ -116,6 +120,20 @@ describe('updateSettingsFromFrontMatterFormatPart', () => {
     const s = updateSettingsFromFrontMatterFormatPart('A.I —', createBasicSettings())
     expect(s.skipTopLevel).toBe(false)
     expect(s.separator).toBe(' —')
+    expect(s.styleLevel1).toBe('A')
+    expect(s.styleLevelOther).toBe('I')
+  })
+  test('with space and right parens as separator', () => {
+    const s = updateSettingsFromFrontMatterFormatPart('A.I )', createBasicSettings())
+    expect(s.skipTopLevel).toBe(false)
+    expect(s.separator).toBe(' )')
+    expect(s.styleLevel1).toBe('A')
+    expect(s.styleLevelOther).toBe('I')
+  })
+  test('with right parens as separator', () => {
+    const s = updateSettingsFromFrontMatterFormatPart('A.I)', createBasicSettings())
+    expect(s.skipTopLevel).toBe(false)
+    expect(s.separator).toBe(')')
     expect(s.styleLevel1).toBe('A')
     expect(s.styleLevelOther).toBe('I')
   })

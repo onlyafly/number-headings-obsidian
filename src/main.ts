@@ -71,7 +71,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     li5.createEl('span', {
       text: `:
       A style text like '1.1', 'A.1', or '_.1.1' tells the plugin how to format the headings.
-      If a style string ends with '.' (a dot), ':' (a colon), '-' (a dash), or '—' (an emdash), the heading numbers will be separated from the heading title
+      If a style string ends with '.' (a dot), ':' (a colon), '-' (a dash), '—' (an emdash), or ')' (a right parenthesis), the heading numbers will be separated from the heading title
       with that symbol.`
     })
 
@@ -185,7 +185,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Separator style')
-      .setDesc('Defines the separator style between the heading number and the heading text. Valid values are : (colon) or . (dot) or - (dash) or — (emdash). You can also leave it blank for no separator, or have a space before the separator.')
+      .setDesc('Defines the separator style between the heading number and the heading text. Valid values are : (colon) or . (dot) or - (dash) or — (emdash) or ) (a right parenthesis). You can also leave it blank for no separator, or have a space before the separator.')
       .addText(text => text
         .setValue(this.plugin.settings.separator)
         .onChange(async (value) => {

@@ -31,6 +31,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.13.0 (Jan 6, 2023)
+
+* Added support for a right parenthesis as a separator.
+
 ### 1.12.0 (Jan 1, 2023)
 
 * Added support for Roman numerals as numbers. See <https://github.com/onlyafly/number-headings-obsidian/issues/34>.
