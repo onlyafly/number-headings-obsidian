@@ -12,12 +12,12 @@ export interface NumberingDoneConfig {
 class NumberingDoneModal extends Modal {
   config: NumberingDoneConfig
 
-  constructor (app: App, config: NumberingDoneConfig) {
+  constructor(app: App, config: NumberingDoneConfig) {
     super(app)
     this.config = config
   }
 
-  onOpen (): void {
+  onOpen(): void {
     const { contentEl, titleEl } = this
     titleEl.setText('Number Headings - Successfully Completed')
 
@@ -28,14 +28,14 @@ class NumberingDoneModal extends Modal {
 
     const containerForButtons = contentEl.createEl('div', { cls: 'number-headings-button-container' })
 
-    const noButton = containerForButtons.createEl('button', { })
+    const noButton = containerForButtons.createEl('button', {})
     noButton.setText('No')
     noButton.onClickEvent((ev: MouseEvent) => {
       this.close()
       return ev
     })
 
-    const yesButton = containerForButtons.createEl('button', { })
+    const yesButton = containerForButtons.createEl('button', {})
     yesButton.setText('Yes, save settings in document')
     yesButton.onClickEvent((ev: MouseEvent) => {
       this.config.saveSettingsCallback(false)
@@ -43,7 +43,7 @@ class NumberingDoneModal extends Modal {
       return ev
     })
 
-    const yesAndAutoButton = containerForButtons.createEl('button', { })
+    const yesAndAutoButton = containerForButtons.createEl('button', {})
     yesAndAutoButton.setText('Yes, save settings in document, and automatically number')
     yesAndAutoButton.onClickEvent((ev: MouseEvent) => {
       this.config.saveSettingsCallback(true)
@@ -52,18 +52,21 @@ class NumberingDoneModal extends Modal {
     })
   }
 
-  onClose (): void {
+  onClose(): void {
     const { contentEl, titleEl } = this
     contentEl.empty()
     titleEl.empty()
   }
 }
 
-export function showNumberingDoneMessage (app: App, settings: NumberHeadingsPluginSettings, viewInfo: ViewInfo): void {
+export function showNumberingDoneMessage(app: App, settings: NumberHeadingsPluginSettings): void {
   const saveSettingsCallback = (shouldAddAutoFlag: boolean): void => {
     const tweakedSettings = { ...settings }
     if (shouldAddAutoFlag) tweakedSettings.auto = true
-    saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, tweakedSettings)
+    const file = app.workspace.getActiveFile()
+    if (file) {
+      saveSettingsToFrontMatter(app.fileManager, file, tweakedSettings)
+    }
   }
   const config: NumberingDoneConfig = {
     message: `Successfully updated all heading numbers in the document, using the settings below. 

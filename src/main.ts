@@ -9,12 +9,12 @@ import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from './settingsTypes'
 class NumberHeadingsPluginSettingTab extends PluginSettingTab {
   plugin: NumberHeadingsPlugin
 
-  constructor (app: App, plugin: NumberHeadingsPlugin) {
+  constructor(app: App, plugin: NumberHeadingsPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display (): void {
+  display(): void {
     const { containerEl } = this
 
     containerEl.empty()
@@ -46,27 +46,27 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 
     const ul = containerEl.createEl('ul', {})
 
-    const li0 = ul.createEl('li', { })
+    const li0 = ul.createEl('li', {})
     li0.createEl('b', { text: 'Automatic numbering' })
     li0.createEl('span', { text: ': If \'auto\' appears, the document will be automatically numbered.' })
 
-    const li1 = ul.createEl('li', { })
+    const li1 = ul.createEl('li', {})
     li1.createEl('b', { text: 'First level to number' })
     li1.createEl('span', { text: ': If \'first-level 2\' appears, the numbering will start at the second level' })
 
-    const li2 = ul.createEl('li', { })
+    const li2 = ul.createEl('li', {})
     li2.createEl('b', { text: 'Start numbering first heading at' })
     li2.createEl('span', { text: ': If \'start-at C\' appears, the numbering of the first level will start at C, instead of A' })
 
-    const li3 = ul.createEl('li', { })
+    const li3 = ul.createEl('li', {})
     li3.createEl('b', { text: 'Maximum level to number' })
     li3.createEl('span', { text: ': If \'max 6\' appears, the headings above level 6 will be skipped.' })
 
-    const li4 = ul.createEl('li', { })
+    const li4 = ul.createEl('li', {})
     li4.createEl('b', { text: 'Table of contents anchor' })
     li4.createEl('span', { text: ': If \'contents ^toc\' appears, the heading that ends with the anchor ^toc will have a table of contents inserted beneath it.' })
 
-    const li5 = ul.createEl('li', { })
+    const li5 = ul.createEl('li', {})
     li5.createEl('b', { text: 'Numbering style' })
     li5.createEl('span', {
       text: `:
@@ -208,7 +208,7 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
 export default class NumberHeadingsPlugin extends Plugin {
   settings!: NumberHeadingsPluginSettings
 
-  async onload (): Promise<void> {
+  async onload(): Promise<void> {
     // eslint-disable-next-line no-console
     console.info('Loading Number Headings Plugin, version ' + this.manifest.version)
 
@@ -230,7 +230,7 @@ export default class NumberHeadingsPlugin extends Plugin {
             updateTableOfContents(postNumberingViewInfo, settings)
           }, 3000)
 
-          showNumberingDoneMessage(this.app, settings, viewInfo)
+          showNumberingDoneMessage(this.app, settings)
         }
 
         return false
@@ -282,9 +282,10 @@ export default class NumberHeadingsPlugin extends Plugin {
         if (checking) return isViewActive(this.app)
 
         const viewInfo = getViewInfo(this.app)
-        if (viewInfo) {
+        const file = this.app.workspace.getActiveFile()
+        if (viewInfo && file) {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
-          saveSettingsToFrontMatter(viewInfo.data, viewInfo.editor, settings)
+          saveSettingsToFrontMatter(this.app.fileManager, file, settings)
         }
 
         return false
@@ -312,11 +313,11 @@ export default class NumberHeadingsPlugin extends Plugin {
     }, 10 * 1000))
   }
 
-  async loadSettings (): Promise<void> {
+  async loadSettings(): Promise<void> {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
   }
 
-  async saveSettings (): Promise<void> {
+  async saveSettings(): Promise<void> {
     await this.saveData(this.settings)
   }
 }

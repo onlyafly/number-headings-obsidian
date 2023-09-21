@@ -1,12 +1,12 @@
 import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
-import { firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, NumberingToken, startAtOrZerothInStyle } from './numberingTokens'
-import { doesContentsHaveValue, NumberHeadingsPluginSettings } from './settingsTypes'
-import { createSupportFlagsFromSettings, findRangeInHeaderString, SupportFlags } from './textProcessing'
+import { NumberingToken, firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, startAtOrZerothInStyle } from './numberingTokens'
+import { NumberHeadingsPluginSettings, doesContentsHaveValue } from './settingsTypes'
+import { SupportFlags, createSupportFlagsFromSettings, findRangeInHeaderString } from './textProcessing'
 
 const TOC_LIST_ITEM_BULLET = '-'
 
-function makeHeadingHashString (editor: Editor, heading: HeadingCache): string | undefined {
+function makeHeadingHashString(editor: Editor, heading: HeadingCache): string | undefined {
   const regex = /^\s{0,4}#+/g
   const headingLineString = editor.getLine(heading.position.start.line)
   if (!headingLineString) return undefined
@@ -24,13 +24,13 @@ function makeHeadingHashString (editor: Editor, heading: HeadingCache): string |
   return match.trimLeft()
 }
 
-function findHeadingPrefixRange (editor: Editor, heading: HeadingCache, flags: SupportFlags): EditorRange | undefined {
+function findHeadingPrefixRange(editor: Editor, heading: HeadingCache, flags: SupportFlags): EditorRange | undefined {
   const lineNumber = heading.position.start.line
   const lineText = editor.getLine(lineNumber)
   return findRangeInHeaderString(lineText, lineNumber, flags)
 }
 
-function cleanHeadingTextForToc (htext: string): string {
+function cleanHeadingTextForToc(htext: string): string {
   if (htext.contains('^')) {
     const x = htext.split('^')
     if (x.length > 1) {
@@ -41,7 +41,7 @@ function cleanHeadingTextForToc (htext: string): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings, initialHeadingLevel: number):string {
+function createTocEntry(h: HeadingCache, settings: NumberHeadingsPluginSettings, initialHeadingLevel: number): string {
   const text = h.heading
   const cleanText = cleanHeadingTextForToc(text)
 
@@ -57,7 +57,7 @@ function createTocEntry (h: HeadingCache, settings: NumberHeadingsPluginSettings
 }
 
 // Replace a range, but only if there is a change in text, to prevent poluting the undo stack
-function replaceRangeEconomically (editor: Editor, changes: EditorChange[], range: EditorRange, text: string): void {
+function replaceRangeEconomically(editor: Editor, changes: EditorChange[], range: EditorRange, text: string): void {
   const previousText = editor.getRange(range.from, range.to)
 
   if (previousText !== text) {

@@ -30,6 +30,8 @@
         "@typescript-eslint/no-unused-vars": "warn",
         "@typescript-eslint/restrict-plus-operands": "error",
         "no-use-before-define": "off",
+        "space-before-function-paren": "off",
+        "dot-notation": "off",
         "@typescript-eslint/no-use-before-define": "error",
         "@typescript-eslint/semi": [
           "error",

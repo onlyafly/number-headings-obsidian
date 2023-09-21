@@ -1,6 +1,6 @@
-import { CachedMetadata, Editor, EditorPosition, FrontMatterCache, parseFrontMatterEntry } from 'obsidian'
+import { CachedMetadata, Editor, FileManager, FrontMatterCache, TFile, parseFrontMatterEntry } from 'obsidian'
 import { NumberingStyle } from './numberingTokens'
-import { DEFAULT_SETTINGS, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidNumberingStyleString, isValidNumberingValueString, NumberHeadingsPluginSettings } from './settingsTypes'
+import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidNumberingStyleString, isValidNumberingValueString } from './settingsTypes'
 import { updateSettingsFromFrontMatterFormatPart } from './textProcessing'
 
 const AUTO_PART_KEY = 'auto'
@@ -9,7 +9,7 @@ const MAX_LEVEL_PART_KEY = 'max'
 const CONTENTS_PART_KEY = 'contents'
 const START_AT_PART_KEY = 'start-at'
 
-function parseCompactFrontMatterSettings (fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
+function parseCompactFrontMatterSettings(fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
   if (entry) {
     const entryString = String(entry)
@@ -99,7 +99,7 @@ export const getFrontMatterSettingsOrAlternative = (
   }
 }
 
-function settingsToCompactFrontMatterValue (settings: NumberHeadingsPluginSettings): string {
+function settingsToCompactFrontMatterValue(settings: NumberHeadingsPluginSettings): string {
   const autoPart = settings.auto ? 'auto, ' : ''
   const firstLevelPart = `first-level ${settings.firstLevel}, `
   const maxPart = `max ${settings.maxLevel}, `
@@ -110,49 +110,13 @@ function settingsToCompactFrontMatterValue (settings: NumberHeadingsPluginSettin
   return autoPart + firstLevelPart + maxPart + contentsPart + startAtPart + stylePart
 }
 
-function findLineWhichStartsWith (editor: Editor, search: string, afterLine: number): number | undefined {
-  // Find the location of the frontmatter
-  for (let i = afterLine; i < editor.lastLine(); i++) {
-    const lineString = editor.getLine(i)
-    if (lineString.startsWith(search)) {
-      return i
-    }
-  }
-  return undefined
-}
-
 export const saveSettingsToFrontMatter = (
-  { frontmatter }: CachedMetadata,
-  editor: Editor,
+  fileManager: FileManager,
+  file: TFile,
   settings: NumberHeadingsPluginSettings
 ): void => {
-  if (frontmatter !== undefined) {
-    // Front matter already exists, so we'll need to insert the settings into the front matter
-
-    const frontMatterLine = frontmatter.position.start.line
-    const v = settingsToCompactFrontMatterValue(settings)
-    const frontMatterAdditions = `number headings: ${v}\n`
-
-    if (frontmatter['number headings'] !== undefined) {
-      // Key already present, replace it
-      const keyLine = findLineWhichStartsWith(editor, 'number headings', frontMatterLine)
-      if (keyLine === undefined) throw new Error('Number Headings Plugin: "number headings" key exists but not found.')
-      const from: EditorPosition = { line: keyLine, ch: 0 }
-      const to: EditorPosition = { line: keyLine + 1, ch: 0 }
-      editor.replaceRange(frontMatterAdditions, from, to)
-    } else {
-      // Key not present, insert new key
-      const from: EditorPosition = { line: frontMatterLine + 1, ch: 0 }
-      const to: EditorPosition = { line: frontMatterLine + 1, ch: 0 }
-      editor.replaceRange(frontMatterAdditions, from, to)
-    }
-  } else {
-    // No frontmatter found, create frontmatter from scratch
-    const v = settingsToCompactFrontMatterValue(settings)
-    const newFrontMatter = `---\nnumber headings: ${v}\n---\n\n`
-    const from: EditorPosition = { line: 0, ch: 0 }
-    const to: EditorPosition = { line: 0, ch: 0 }
-    editor.replaceRange(newFrontMatter, from, to)
-    // Front matter does not exist, so we will create it from scratch
-  }
+  fileManager.processFrontMatter(file, frontmatter => {
+    const v: string = settingsToCompactFrontMatterValue(settings)
+    frontmatter['number headings'] = v
+  })
 }

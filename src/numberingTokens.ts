@@ -17,24 +17,24 @@ export type NumberingStyle = '1' | 'A' | 'I'
 export type NumberingValue = number | string
 
 // Validates the string using a regex to ensure is is a valid arabic numbering value
-export function isValidArabicNumberingValueString (s: string): boolean {
+export function isValidArabicNumberingValueString(s: string): boolean {
   const regex = /^[0-9]+$/
   return regex.test(s)
 }
 
 // Validates the string using a regex to ensure is is a valid alphabet numbering value
-export function isValidAlphabetNumberingValueString (s: string): boolean {
+export function isValidAlphabetNumberingValueString(s: string): boolean {
   const regex = /^[A-Z]$/
   return regex.test(s)
 }
 
 // Validates the string using a regex to ensure is is a valid roman numbering value
-export function isValidRomanNumberingValueString (s: string): boolean {
+export function isValidRomanNumberingValueString(s: string): boolean {
   const regex = /^[0IVXLCDM]+$/ // This includes zero for zeroth testing
   return regex.test(s)
 }
 
-function printableNumberingToken (t: NumberingToken): string {
+function printableNumberingToken(t: NumberingToken): string {
   switch (t.style) {
     case '1':
       return t.value.toString()
@@ -45,7 +45,7 @@ function printableNumberingToken (t: NumberingToken): string {
   }
 }
 
-export function zerothNumberingTokenInStyle (style: NumberingStyle): NumberingToken {
+export function zerothNumberingTokenInStyle(style: NumberingStyle): NumberingToken {
   switch (style) {
     case '1':
       return { style: '1', value: 0 }
@@ -56,7 +56,7 @@ export function zerothNumberingTokenInStyle (style: NumberingStyle): NumberingTo
   }
 }
 
-export function firstNumberingTokenInStyle (style: NumberingStyle): NumberingToken {
+export function firstNumberingTokenInStyle(style: NumberingStyle): NumberingToken {
   switch (style) {
     case '1':
       return { style: '1', value: 1 }
@@ -67,7 +67,7 @@ export function firstNumberingTokenInStyle (style: NumberingStyle): NumberingTok
   }
 }
 
-export function nextNumberingToken (t: NumberingToken): NumberingToken {
+export function nextNumberingToken(t: NumberingToken): NumberingToken {
   switch (t.style) {
     case '1':
       return { style: '1', value: t.value + 1 }
@@ -80,7 +80,7 @@ export function nextNumberingToken (t: NumberingToken): NumberingToken {
   }
 }
 
-export function previousNumberingToken (t: NumberingToken): NumberingToken {
+export function previousNumberingToken(t: NumberingToken): NumberingToken {
   switch (t.style) {
     case '1':
       return { style: '1', value: t.value - 1 }
@@ -93,7 +93,7 @@ export function previousNumberingToken (t: NumberingToken): NumberingToken {
   }
 }
 
-export function makeNumberingString (numberingStack: NumberingToken[]): string {
+export function makeNumberingString(numberingStack: NumberingToken[]): string {
   let numberingString = ''
 
   for (let i = 0; i < numberingStack.length; i++) {
@@ -108,7 +108,7 @@ export function makeNumberingString (numberingStack: NumberingToken[]): string {
   return numberingString
 }
 
-export function startAtOrZerothInStyle (startAtSettingString: string, style : NumberingStyle): NumberingToken {
+export function startAtOrZerothInStyle(startAtSettingString: string, style: NumberingStyle): NumberingToken {
   if (startAtSettingString === '') return zerothNumberingTokenInStyle(style)
 
   let firstNumberingTokenFromSetting: NumberingToken

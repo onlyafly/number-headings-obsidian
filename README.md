@@ -31,6 +31,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.14.0 (Sep 21, 2023)
+
+* Fixed bug where you could no longer automatically insert settings on a per document basis. See <https://github.com/onlyafly/number-headings-obsidian/issues/54>.
+
 ### 1.13.0 (Jan 6, 2023)
 
 * Added support for a right parenthesis as a separator.

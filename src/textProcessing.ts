@@ -7,7 +7,7 @@ export type SupportFlags = {
   roman: boolean,
 }
 
-export function createSupportFlagsFromSettings (styleLevel1: string, styleLevelOther: string): SupportFlags {
+export function createSupportFlagsFromSettings(styleLevel1: string, styleLevelOther: string): SupportFlags {
   return {
     alphabet: styleLevel1 === 'A' || styleLevelOther === 'A',
     roman: styleLevel1 === 'I' || styleLevelOther === 'I'
@@ -16,7 +16,7 @@ export function createSupportFlagsFromSettings (styleLevel1: string, styleLevelO
 
 // Get the regex for the header string, based on the support flags. The generated regex is used to find the range of the header prefix.
 // The regex is generated dynamically, because the regex is different depending on the support flags.
-function getRegexForHeaderString (flags: SupportFlags): RegExp {
+function getRegexForHeaderString(flags: SupportFlags): RegExp {
   if (flags.alphabet && flags.roman) {
     // Regex to match the heading prefix, including the space after the hash(es), but not the heading text
     return /^\s{0,4}#+( )?([0-9]+\.|[A-Z]\.|[IVXLCDM]+\.)*([0-9]+|[A-Z]|[IVXLCDM]+)?( )?[)—:.-]?( )+/g
@@ -35,7 +35,7 @@ function getRegexForHeaderString (flags: SupportFlags): RegExp {
 }
 
 // Find the range of the heading prefix, including the space after any numbering, but not the heading text
-export function findRangeInHeaderString (lineText: string, lineNumber: number, flags: SupportFlags): EditorRange | undefined {
+export function findRangeInHeaderString(lineText: string, lineNumber: number, flags: SupportFlags): EditorRange | undefined {
   const regex = getRegexForHeaderString(flags)
 
   if (!lineText) return undefined
@@ -62,7 +62,7 @@ export function findRangeInHeaderString (lineText: string, lineNumber: number, f
   return { from, to }
 }
 
-export function updateSettingsFromFrontMatterFormatPart (part: string, settings: NumberHeadingsPluginSettings): NumberHeadingsPluginSettings {
+export function updateSettingsFromFrontMatterFormatPart(part: string, settings: NumberHeadingsPluginSettings): NumberHeadingsPluginSettings {
   // Parse the separator
   let partWithoutSeparator = part
   const potentialTwoCharSeparator = part.slice(-2)
