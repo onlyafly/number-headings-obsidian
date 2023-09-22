@@ -1,4 +1,4 @@
-import { CachedMetadata, Editor, FileManager, FrontMatterCache, TFile, parseFrontMatterEntry } from 'obsidian'
+import { CachedMetadata, FileManager, FrontMatterCache, TFile, parseFrontMatterEntry } from 'obsidian'
 import { NumberingStyle } from './numberingTokens'
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidNumberingStyleString, isValidNumberingValueString } from './settingsTypes'
 import { updateSettingsFromFrontMatterFormatPart } from './textProcessing'
