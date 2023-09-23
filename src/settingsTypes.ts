@@ -10,6 +10,7 @@ export interface NumberHeadingsPluginSettings {
   separator: string,
   contents: string,
   startAt: string,
+  off: boolean
 }
 
 export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
@@ -21,7 +22,8 @@ export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
   auto: false,
   separator: '',
   contents: '',
-  startAt: ''
+  startAt: '',
+  off: false
 }
 
 export function isValidNumberingStyleString(s: string): boolean {

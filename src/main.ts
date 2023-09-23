@@ -107,6 +107,10 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     `
     })
 
+    const li100 = ul.createEl('li', {})
+    li100.createEl('b', { text: 'Numbering off' })
+    li100.createEl('span', { text: ': If \'off\' appears, the document will not be numbered.' })
+
     new Setting(containerEl)
       .setName('Skip top heading level')
       .setDesc('If selected, numbering will not be applied to the top heading level.')
@@ -223,6 +227,8 @@ export default class NumberHeadingsPlugin extends Plugin {
         const viewInfo = getViewInfo(this.app)
         if (viewInfo) {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
+          if (settings.off) return false
+
           updateHeadingNumbering(viewInfo, settings)
           setTimeout(() => {
             // HACK: This must happen after a timeout so that there is time for the editor transaction to complete
@@ -246,6 +252,8 @@ export default class NumberHeadingsPlugin extends Plugin {
         const viewInfo = getViewInfo(this.app)
         if (viewInfo) {
           const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
+          if (settings.off) return false
+
           updateHeadingNumbering(viewInfo, settings)
           setTimeout(() => {
             // HACK: This must happen after a timeout so that there is time for the editor transaction to complete
@@ -298,6 +306,8 @@ export default class NumberHeadingsPlugin extends Plugin {
       const viewInfo = getViewInfo(this.app)
       if (viewInfo) {
         const settings = getFrontMatterSettingsOrAlternative(viewInfo.data, this.settings)
+
+        if (settings.off) return
 
         if (settings.auto) {
           updateHeadingNumbering(viewInfo, settings)

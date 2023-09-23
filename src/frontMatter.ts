@@ -8,6 +8,7 @@ const FIRST_LEVEL_PART_KEY = 'first-level'
 const MAX_LEVEL_PART_KEY = 'max'
 const CONTENTS_PART_KEY = 'contents'
 const START_AT_PART_KEY = 'start-at'
+const OFF_PART_KEY = 'off'
 
 function parseCompactFrontMatterSettings(fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
@@ -20,7 +21,10 @@ function parseCompactFrontMatterSettings(fm: FrontMatterCache): NumberHeadingsPl
       const trimmedPart = part.trim()
       if (trimmedPart.length === 0) continue
 
-      if (trimmedPart === AUTO_PART_KEY) {
+      if (trimmedPart === OFF_PART_KEY) {
+        // Parse off part
+        settings.off = true
+      } else if (trimmedPart === AUTO_PART_KEY) {
         // Parse auto numbering part
         settings.auto = true
       } else if (trimmedPart.startsWith(FIRST_LEVEL_PART_KEY)) {
@@ -100,6 +104,8 @@ export const getFrontMatterSettingsOrAlternative = (
 }
 
 function settingsToCompactFrontMatterValue(settings: NumberHeadingsPluginSettings): string {
+  if (settings.off) return OFF_PART_KEY
+
   const autoPart = settings.auto ? 'auto, ' : ''
   const firstLevelPart = `first-level ${settings.firstLevel}, `
   const maxPart = `max ${settings.maxLevel}, `
