@@ -31,7 +31,7 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
-### 1.14.1 (WORK IN PROGRESS)
+### 1.15.0 (Sep 23, 2023)
 
 * Added option to turn off automatic numbering for specific files. See <https://github.com/onlyafly/number-headings-obsidian/issues/43>.
 
