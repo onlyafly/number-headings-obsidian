@@ -1,7 +1,7 @@
 import { Editor, EditorChange, EditorRange, HeadingCache } from 'obsidian'
 import { ViewInfo } from './activeViewHelpers'
 import { NumberingToken, firstNumberingTokenInStyle, makeNumberingString, nextNumberingToken, startAtOrZerothInStyle } from './numberingTokens'
-import { NumberHeadingsPluginSettings, doesContentsHaveValue } from './settingsTypes'
+import { NumberHeadingsPluginSettings, isNonEmptyBlockId } from './settingsTypes'
 import { SupportFlags, createSupportFlagsFromSettings, findRangeInHeaderString } from './textProcessing'
 
 const TOC_LIST_ITEM_BULLET = '-'
@@ -111,6 +111,13 @@ export const updateHeadingNumbering = (
       continue
     }
 
+    // Handle skipped headings
+    if (settings.skipHeadings.length > 0) {
+      if (heading.heading.endsWith(settings.skipHeadings)) {
+        continue
+      }
+    }
+
     // Adjust numbering stack
     if (level === previousLevel) {
       const x = numberingStack.pop()
@@ -166,7 +173,7 @@ export const updateTableOfContents = (
   const headings = viewInfo.data.headings ?? []
   const editor = viewInfo.editor
 
-  if (!doesContentsHaveValue(settings.contents)) return
+  if (!isNonEmptyBlockId(settings.contents)) return
 
   let tocHeading: HeadingCache | undefined
   let tocBuilder = '\n'

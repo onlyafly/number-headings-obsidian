@@ -1,5 +1,5 @@
 import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings } from '../src/settingsTypes'
-import { findRangeInHeaderString, SupportFlags, updateSettingsFromFrontMatterFormatPart } from '../src/textProcessing'
+import { SupportFlags, findRangeInHeaderString, updateSettingsFromFrontMatterFormatPart } from '../src/textProcessing'
 
 const defaultSupportFlags: SupportFlags = { alphabet: true, roman: true }
 
@@ -43,7 +43,7 @@ describe('heading prefix range finding', () => {
 })
 
 // Generate an clean settings object for testing
-function createBasicSettings (): NumberHeadingsPluginSettings {
+function createBasicSettings(): NumberHeadingsPluginSettings {
   const s = { ...DEFAULT_SETTINGS }
   s.skipTopLevel = true
   s.styleLevel1 = 'A'

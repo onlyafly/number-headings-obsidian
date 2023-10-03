@@ -1,12 +1,13 @@
 import { CachedMetadata, FileManager, FrontMatterCache, TFile, parseFrontMatterEntry } from 'obsidian'
 import { NumberingStyle } from './numberingTokens'
-import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings, isValidContents, isValidFirstOrMaxLevel, isValidFlag, isValidNumberingStyleString, isValidNumberingValueString } from './settingsTypes'
+import { DEFAULT_SETTINGS, NumberHeadingsPluginSettings, isValidBlockIdSetting, isValidFirstOrMaxLevel, isValidFlag, isValidNumberingStyleString, isValidNumberingValueString } from './settingsTypes'
 import { updateSettingsFromFrontMatterFormatPart } from './textProcessing'
 
 const AUTO_PART_KEY = 'auto'
 const FIRST_LEVEL_PART_KEY = 'first-level'
 const MAX_LEVEL_PART_KEY = 'max'
 const CONTENTS_PART_KEY = 'contents'
+const SKIP_PART_KEY = 'skip'
 const START_AT_PART_KEY = 'start-at'
 const OFF_PART_KEY = 'off'
 
@@ -50,9 +51,16 @@ function parseCompactFrontMatterSettings(fm: FrontMatterCache): NumberHeadingsPl
       } else if (trimmedPart.startsWith(CONTENTS_PART_KEY)) {
         if (trimmedPart.length <= CONTENTS_PART_KEY.length + 1) continue
         // Parse contents heading part
-        const tocHeading = trimmedPart.substring(CONTENTS_PART_KEY.length + 1)
-        if (isValidContents(tocHeading)) {
-          settings.contents = tocHeading
+        const tocHeadingBlockIdName = trimmedPart.substring(CONTENTS_PART_KEY.length + 1)
+        if (isValidBlockIdSetting(tocHeadingBlockIdName)) {
+          settings.contents = tocHeadingBlockIdName
+        }
+      } else if (trimmedPart.startsWith(SKIP_PART_KEY)) {
+        if (trimmedPart.length <= SKIP_PART_KEY.length + 1) continue
+        // Parse skip heading part
+        const skipHeadingBlockIdName = trimmedPart.substring(SKIP_PART_KEY.length + 1)
+        if (isValidBlockIdSetting(skipHeadingBlockIdName)) {
+          settings.skipHeadings = skipHeadingBlockIdName
         }
       } else {
         // Parse formatting part
@@ -110,10 +118,11 @@ function settingsToCompactFrontMatterValue(settings: NumberHeadingsPluginSetting
   const firstLevelPart = `first-level ${settings.firstLevel}, `
   const maxPart = `max ${settings.maxLevel}, `
   const contentsPart = settings.contents && settings.contents.length > 0 ? `contents ${settings.contents}, ` : ''
+  const skipHeadingsPart = settings.skipHeadings && settings.skipHeadings.length > 0 ? `skip ${settings.skipHeadings}, ` : ''
   const skipTopLevelString = settings.skipTopLevel ? '_.' : ''
   const stylePart = `${skipTopLevelString}${settings.styleLevel1}.${settings.styleLevelOther}${settings.separator}`
   const startAtPart = settings.startAt !== '' ? `start-at ${settings.startAt}, ` : ''
-  return autoPart + firstLevelPart + maxPart + contentsPart + startAtPart + stylePart
+  return autoPart + firstLevelPart + maxPart + contentsPart + skipHeadingsPart + startAtPart + stylePart
 }
 
 export const saveSettingsToFrontMatter = (

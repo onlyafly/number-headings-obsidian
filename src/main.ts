@@ -66,6 +66,10 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
     li4.createEl('b', { text: 'Table of contents anchor' })
     li4.createEl('span', { text: ': If \'contents ^toc\' appears, the heading that ends with the anchor ^toc will have a table of contents inserted beneath it.' })
 
+    const li41 = ul.createEl('li', {})
+    li41.createEl('b', { text: 'Skip headings anchor' })
+    li41.createEl('span', { text: ': If \'skip ^skipped\' appears, the heading that ends with the anchor ^skipped will not be numbered.' })
+
     const li5 = ul.createEl('li', {})
     li5.createEl('b', { text: 'Numbering style' })
     li5.createEl('span', {
@@ -204,6 +208,16 @@ class NumberHeadingsPluginSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.contents)
         .onChange(async (value) => {
           this.plugin.settings.contents = value
+          await this.plugin.saveSettings()
+        }))
+
+    new Setting(containerEl)
+      .setName('Skip Headings Anchor')
+      .setDesc('Anchor which labels the headers that should not be numbered. The anchor should be added at the end of a header. For example, ^skipped.')
+      .addText(text => text
+        .setValue(this.plugin.settings.skipHeadings)
+        .onChange(async (value) => {
+          this.plugin.settings.skipHeadings = value
           await this.plugin.saveSettings()
         }))
   }

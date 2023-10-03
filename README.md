@@ -31,6 +31,10 @@ See the settings page for the plugin for detailed instructions on the various se
 
 ## Version History
 
+### 1.16.0 (Oct 3, 2023)
+
+* Added support for skipping headings using the `skip` front matter setting. See <https://github.com/onlyafly/number-headings-obsidian/issues/25>.
+
 ### 1.15.0 (Sep 23, 2023)
 
 * Added option to turn off automatic numbering for specific files. See <https://github.com/onlyafly/number-headings-obsidian/issues/43>.

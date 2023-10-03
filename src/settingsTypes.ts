@@ -9,6 +9,7 @@ export interface NumberHeadingsPluginSettings {
   auto: boolean,
   separator: string,
   contents: string,
+  skipHeadings: string,
   startAt: string,
   off: boolean
 }
@@ -22,6 +23,7 @@ export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
   auto: false,
   separator: '',
   contents: '',
+  skipHeadings: '',
   startAt: '',
   off: false
 }
@@ -58,12 +60,12 @@ export function isValidSeparator(x: unknown): boolean {
     )
 }
 
-export function isValidContents(x: unknown): boolean {
+export function isValidBlockIdSetting(x: unknown): boolean {
   if (typeof x === 'string' && (x === '' || x.startsWith('^'))) return true
   return false
 }
 
-export function doesContentsHaveValue(x: string): boolean {
+export function isNonEmptyBlockId(x: string): boolean {
   if (x.length > 2 && x.startsWith('^')) return true
   return false
 }
