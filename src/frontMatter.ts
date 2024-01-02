@@ -10,6 +10,7 @@ const CONTENTS_PART_KEY = 'contents'
 const SKIP_PART_KEY = 'skip'
 const START_AT_PART_KEY = 'start-at'
 const OFF_PART_KEY = 'off'
+const PREPEND_PART_KEY = 'prependValue'
 
 function parseCompactFrontMatterSettings(fm: FrontMatterCache): NumberHeadingsPluginSettings | undefined {
   const entry = parseFrontMatterEntry(fm, 'number headings')
@@ -48,6 +49,10 @@ function parseCompactFrontMatterSettings(fm: FrontMatterCache): NumberHeadingsPl
         if (isValidNumberingValueString(value)) {
           settings.startAt = value
         }
+      } else if (trimmedPart.startsWith(PREPEND_PART_KEY)) {
+        // Parse "prepend Value" part
+        const value = trimmedPart.substring(PREPEND_PART_KEY.length + 1)
+          settings.prependValue = value
       } else if (trimmedPart.startsWith(CONTENTS_PART_KEY)) {
         if (trimmedPart.length <= CONTENTS_PART_KEY.length + 1) continue
         // Parse contents heading part
@@ -105,11 +110,15 @@ export const getFrontMatterSettingsOrAlternative = (
     const autoEntry = parseFrontMatterEntry(frontmatter, 'number-headings-auto') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-auto')
     const auto = isValidFlag(autoEntry) ? autoEntry : alternativeSettings.auto
 
-    return { ...alternativeSettings, skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto }
+    const prependEntry = parseFrontMatterEntry(frontmatter, 'number-headings-prependValue') ?? parseFrontMatterEntry(frontmatter, 'header-numbering-prependValue')
+    const prependValue = prependEntry
+
+    return { ...alternativeSettings, skipTopLevel, maxLevel, styleLevel1, styleLevelOther, auto, prependValue }
   } else {
     return alternativeSettings
   }
 }
+
 
 function settingsToCompactFrontMatterValue(settings: NumberHeadingsPluginSettings): string {
   if (settings.off) return OFF_PART_KEY

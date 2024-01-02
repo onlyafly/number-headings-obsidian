@@ -81,7 +81,7 @@ export const updateHeadingNumbering = (
   let previousLevel = 1
 
   let numberingStack: NumberingToken[] = [startAtOrZerothInStyle(settings.startAt, settings.styleLevel1)]
-
+  if (settings.prependValue != '') {numberingStack = [{style: 'A', value: settings.prependValue}, startAtOrZerothInStyle(settings.startAt, settings.styleLevel1)]}
   if (settings.firstLevel > 1) {
     previousLevel = settings.firstLevel
   } else if (settings.skipTopLevel) {
@@ -102,6 +102,7 @@ export const updateHeadingNumbering = (
       // ignored headings.
 
       numberingStack = [startAtOrZerothInStyle(settings.startAt, settings.styleLevel1)]
+      if (settings.prependValue != '') {numberingStack = [{style: 'A', value: settings.prependValue}, startAtOrZerothInStyle(settings.startAt, settings.styleLevel1)]}
 
       if (settings.firstLevel > 1) {
         previousLevel = settings.firstLevel
@@ -151,7 +152,7 @@ export const updateHeadingNumbering = (
     if (prefixRange === undefined) return
     const headingHashString = makeHeadingHashString(editor, heading)
     if (headingHashString === undefined) return
-    const prefixString = makeNumberingString(numberingStack)
+    const prefixString = makeNumberingString(numberingStack, settings.prependValue)
     replaceRangeEconomically(editor, changes, prefixRange, headingHashString + prefixString + settings.separator + ' ')
   }
 
