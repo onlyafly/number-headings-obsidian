@@ -11,7 +11,8 @@ export interface NumberHeadingsPluginSettings {
   contents: string,
   skipHeadings: string,
   startAt: string,
-  off: boolean
+  off: boolean,
+  prependValue: string
 }
 
 export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
@@ -25,7 +26,8 @@ export const DEFAULT_SETTINGS: Readonly<NumberHeadingsPluginSettings> = {
   contents: '',
   skipHeadings: '',
   startAt: '',
-  off: false
+  off: false,
+  prependValue: ''
 }
 
 export function isValidNumberingStyleString(s: string): boolean {

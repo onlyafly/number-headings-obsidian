@@ -1,3 +1,4 @@
+import { settings } from 'cluster'
 import { deromanize, romanize } from 'romans'
 
 export type NumberingToken = NumberingTokenArabic | NumberingTokenAlphabet | NumberingTokenRoman
@@ -93,17 +94,26 @@ export function previousNumberingToken(t: NumberingToken): NumberingToken {
   }
 }
 
-export function makeNumberingString(numberingStack: NumberingToken[]): string {
+export function makeNumberingString(numberingStack: NumberingToken[], prependValueSetting: string): string {
   let numberingString = ''
 
-  for (let i = 0; i < numberingStack.length; i++) {
-    if (i === 0) {
-      numberingString += ' '
-    } else {
-      numberingString += '.'
+    for (let i = 0; i < numberingStack.length; i++) {
+      if (i === 0) {
+        numberingString += ' '
+      } else if (i=== 1) {
+        if (!isValidArabicNumberingValueString(prependValueSetting) &&
+        !isValidAlphabetNumberingValueString(prependValueSetting) &&
+        !isValidRomanNumberingValueString(prependValueSetting) &&
+        !(prependValueSetting == '')) {
+          numberingString += ' '
+        } else {
+          numberingString += '.'
+        }
+      } else {
+        numberingString += '.'
+      }
+      numberingString += printableNumberingToken(numberingStack[i])
     }
-    numberingString += printableNumberingToken(numberingStack[i])
-  }
 
   return numberingString
 }

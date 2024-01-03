@@ -6,7 +6,7 @@ describe('makeNumberingString', () => {
       { style: '1', value: 1 },
       { style: '1', value: 1 }
     ]
-    const result = makeNumberingString(stack)
+    const result = makeNumberingString(stack,'')
     expect(result).toBe(' 1.1')
   })
   test('basic', () => {
@@ -15,7 +15,7 @@ describe('makeNumberingString', () => {
       { style: 'A', value: 'B' },
       { style: '1', value: 1 }
     ]
-    const result = makeNumberingString(stack)
+    const result = makeNumberingString(stack,'')
     expect(result).toBe(' A.B.1')
   })
   test('roman unmixed', () => {
@@ -24,7 +24,7 @@ describe('makeNumberingString', () => {
       { style: 'I', value: 'X' },
       { style: 'I', value: 'XXI' }
     ]
-    const result = makeNumberingString(stack)
+    const result = makeNumberingString(stack,'')
     expect(result).toBe(' V.X.XXI')
   })
   test('roman mixed', () => {
@@ -33,7 +33,7 @@ describe('makeNumberingString', () => {
       { style: 'A', value: 'C' },
       { style: '1', value: 123 }
     ]
-    const result = makeNumberingString(stack)
+    const result = makeNumberingString(stack,'')
     expect(result).toBe(' V.C.123')
   })
 })
