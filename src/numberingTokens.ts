@@ -103,7 +103,8 @@ export function makeNumberingString(numberingStack: NumberingToken[], prependVal
       } else if (i=== 1) {
         if (!isValidArabicNumberingValueString(prependValueSetting) &&
         !isValidAlphabetNumberingValueString(prependValueSetting) &&
-        !isValidRomanNumberingValueString(prependValueSetting)) {
+        !isValidRomanNumberingValueString(prependValueSetting) &&
+        !(prependValueSetting == '')) {
           numberingString += ' '
         } else {
           numberingString += '.'
